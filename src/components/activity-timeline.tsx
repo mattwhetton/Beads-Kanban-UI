@@ -1,0 +1,136 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import type { Bead, Comment } from "@/types";
+
+export interface ActivityTimelineProps {
+  bead: Bead;
+  comments: Comment[];
+}
+
+/**
+ * Timeline event types
+ */
+type TimelineEventType = "created" | "status_change" | "comment" | "branch";
+
+interface TimelineEvent {
+  id: string;
+  type: TimelineEventType;
+  description: string;
+  timestamp: Date;
+}
+
+/**
+ * Format a date for display (e.g., "Jan 12, 10:57 AM")
+ */
+function formatTimestamp(date: Date): string {
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  }) + ", " + date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
+/**
+ * Build timeline events from bead and comments
+ */
+function buildTimelineEvents(bead: Bead, comments: Comment[]): TimelineEvent[] {
+  const events: TimelineEvent[] = [];
+
+  // Created event
+  const createdAt = new Date(bead.created_at);
+  events.push({
+    id: `created-${bead.id}`,
+    type: "created",
+    description: "Created",
+    timestamp: createdAt,
+  });
+
+  // Status change event (if updated_at differs from created_at)
+  const updatedAt = new Date(bead.updated_at);
+  if (updatedAt.getTime() !== createdAt.getTime()) {
+    events.push({
+      id: `status-${bead.id}`,
+      type: "status_change",
+      description: `Status \u2192 ${bead.status}`,
+      timestamp: updatedAt,
+    });
+  }
+
+  // Comment events
+  comments.forEach((comment) => {
+    events.push({
+      id: `comment-${comment.id}`,
+      type: "comment",
+      description: "Comment added",
+      timestamp: new Date(comment.created_at),
+    });
+  });
+
+  // Sort chronologically (oldest first)
+  events.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+
+  return events;
+}
+
+/**
+ * Activity Timeline component
+ * Displays a vertical timeline of bead activity events
+ */
+export function ActivityTimeline({ bead, comments }: ActivityTimelineProps) {
+  const events = buildTimelineEvents(bead, comments);
+
+  if (events.length === 0) {
+    return (
+      <div className="mt-6 text-sm text-muted-foreground">
+        No activity recorded
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-6 space-y-1">
+      <h4 className="text-sm font-semibold text-foreground mb-3">
+        Activity Timeline
+      </h4>
+      <div className="relative">
+        {/* Vertical line */}
+        <div className="absolute left-[5px] top-2 bottom-2 w-px bg-muted-foreground/20" />
+
+        {/* Events */}
+        <div className="space-y-3">
+          {events.map((event, index) => (
+            <div
+              key={event.id}
+              className="relative flex items-start gap-3 pl-5"
+            >
+              {/* Dot */}
+              <div
+                className={cn(
+                  "absolute left-0 top-1.5 h-[11px] w-[11px] rounded-full border-2 bg-background",
+                  event.type === "created" && "border-green-500",
+                  event.type === "status_change" && "border-blue-500",
+                  event.type === "comment" && "border-zinc-400",
+                  event.type === "branch" && "border-purple-500"
+                )}
+              />
+
+              {/* Content */}
+              <div className="flex flex-1 items-center justify-between min-w-0">
+                <span className="text-xs text-muted-foreground truncate">
+                  {event.description}
+                </span>
+                <span className="text-[10px] text-muted-foreground/70 whitespace-nowrap ml-2">
+                  {formatTimestamp(event.timestamp)}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
