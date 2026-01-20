@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 import { Maximize2, Minimize2, FileText, Loader2 } from "lucide-react";
 import "highlight.js/styles/github-dark.css";
 
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3008';
+
 export interface DesignDocViewerProps {
   /** Path to design doc (e.g., ".designs/{EPIC_ID}.md") */
   designDocPath: string;
@@ -25,7 +27,7 @@ async function fetchDesignDoc(path: string, projectPath: string): Promise<string
   const encodedPath = encodeURIComponent(path);
   const encodedProjectPath = encodeURIComponent(projectPath);
   const response = await fetch(
-    `/api/fs/read?path=${encodedPath}&project_path=${encodedProjectPath}`
+    `${API_BASE}/api/fs/read?path=${encodedPath}&project_path=${encodedProjectPath}`
   );
   if (!response.ok) {
     throw new Error('Failed to fetch design doc: ' + response.statusText);
