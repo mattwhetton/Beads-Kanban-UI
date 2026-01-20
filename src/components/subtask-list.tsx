@@ -21,14 +21,14 @@ export interface SubtaskListProps {
 function getStatusIcon(status: BeadStatus) {
   switch (status) {
     case 'closed':
-      return <Check className="h-3.5 w-3.5 text-green-600" />;
+      return <Check className="h-3.5 w-3.5 text-green-600" aria-hidden="true" />;
     case 'in_progress':
-      return <Clock className="h-3.5 w-3.5 text-blue-600" />;
+      return <Clock className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />;
     case 'inreview':
-      return <FileCheck className="h-3.5 w-3.5 text-purple-600" />;
+      return <FileCheck className="h-3.5 w-3.5 text-purple-600" aria-hidden="true" />;
     case 'open':
     default:
-      return <Circle className="h-3.5 w-3.5 text-zinc-400" />;
+      return <Circle className="h-3.5 w-3.5 text-zinc-400" aria-hidden="true" />;
   }
 }
 
@@ -54,7 +54,7 @@ function getStatusColor(status: BeadStatus): string {
  */
 function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength).trim() + "...";
+  return text.slice(0, maxLength).trim() + "…";
 }
 
 /**
@@ -86,6 +86,7 @@ export function SubtaskList({
             e.stopPropagation();
             onChildClick(child);
           }}
+          aria-label={`Open task: ${child.title}`}
           className={cn(
             "w-full flex items-start gap-2 px-2 py-1.5 rounded-md",
             "hover:bg-accent transition-colors text-left",

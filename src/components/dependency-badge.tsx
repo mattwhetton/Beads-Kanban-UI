@@ -37,7 +37,7 @@ export function DependencyBadge({ deps = [], blockers = [], onNavigate }: Depend
               variant="destructive"
               className="text-[10px] px-1.5 py-0 cursor-help"
             >
-              <Lock className="h-3 w-3 mr-0.5" />
+              <Lock className="h-3 w-3 mr-0.5" aria-hidden="true" />
               BLOCKED
             </Badge>
           </TooltipTrigger>
@@ -51,6 +51,7 @@ export function DependencyBadge({ deps = [], blockers = [], onNavigate }: Depend
                     e.stopPropagation();
                     onNavigate?.(depId);
                   }}
+                  aria-label={`Navigate to blocker ${depId}`}
                   className="block text-left hover:underline w-full"
                 >
                   {depId}
@@ -74,7 +75,7 @@ export function DependencyBadge({ deps = [], blockers = [], onNavigate }: Depend
               "bg-orange-500 text-white hover:bg-orange-500/80 border-transparent"
             )}
           >
-            <AlertCircle className="h-3 w-3 mr-0.5" />
+            <AlertCircle className="h-3 w-3 mr-0.5" aria-hidden="true" />
             BLOCKING
           </Badge>
         </TooltipTrigger>
@@ -88,6 +89,7 @@ export function DependencyBadge({ deps = [], blockers = [], onNavigate }: Depend
                   e.stopPropagation();
                   onNavigate?.(blockerId);
                 }}
+                aria-label={`Navigate to blocked task ${blockerId}`}
                 className="block text-left hover:underline w-full"
               >
                 {blockerId}

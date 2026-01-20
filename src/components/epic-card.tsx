@@ -59,7 +59,7 @@ function formatBeadId(id: string): string {
  */
 function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength).trim() + "...";
+  return text.slice(0, maxLength).trim() + "…";
 }
 
 /**
@@ -127,7 +127,7 @@ export function EpicCard({
         {/* Header: Ticket # + Epic Icon + ID + Priority + Design Doc + Dependencies */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Layers className="h-4 w-4 text-purple-600" />
+            <Layers className="h-4 w-4 text-purple-600" aria-hidden="true" />
             <span className="text-xs font-mono text-muted-foreground">
               {ticketNumber !== undefined && (
                 <span className="font-semibold text-foreground">#{ticketNumber}</span>
@@ -142,7 +142,7 @@ export function EpicCard({
                 variant="outline"
                 className="text-[10px] px-1.5 py-0 border-purple-300 text-purple-700 bg-purple-50"
               >
-                <FileText className="h-3 w-3 mr-0.5" />
+                <FileText className="h-3 w-3 mr-0.5" aria-hidden="true" />
                 DESIGN
               </Badge>
             )}
@@ -190,7 +190,14 @@ export function EpicCard({
             </span>
             <span className="font-semibold">{progressPercentage}%</span>
           </div>
-          <div className="w-full h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+          <div
+            role="progressbar"
+            aria-valuenow={progressPercentage}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`Epic progress: ${progress.completed} of ${progress.total} completed`}
+            className="w-full h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden"
+          >
             <div
               className={cn(
                 "h-full transition-all duration-300",
@@ -201,12 +208,12 @@ export function EpicCard({
           </div>
           <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
             <span className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-blue-500" />
+              <div className="w-2 h-2 rounded-full bg-blue-500" aria-hidden="true" />
               {progress.inProgress} in progress
             </span>
             {progress.blocked > 0 && (
               <span className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-red-500" />
+                <div className="w-2 h-2 rounded-full bg-red-500" aria-hidden="true" />
                 {progress.blocked} blocked
               </span>
             )}
@@ -220,12 +227,14 @@ export function EpicCard({
               e.stopPropagation();
               setIsExpanded(!isExpanded);
             }}
+            aria-expanded={isExpanded}
+            aria-label={`${isExpanded ? 'Collapse' : 'Expand'} child tasks`}
             className="flex items-center gap-1 text-xs font-semibold text-purple-700 dark:text-purple-300 hover:underline mb-2"
           >
             {isExpanded ? (
-              <ChevronDown className="h-3.5 w-3.5" />
+              <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
             ) : (
-              <ChevronRight className="h-3.5 w-3.5" />
+              <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
             )}
             Child Tasks ({children.length})
           </button>
@@ -241,7 +250,7 @@ export function EpicCard({
         {commentCount > 0 && (
           <div className="flex items-center pt-2">
             <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-              <MessageSquare className="h-3 w-3" />
+              <MessageSquare className="h-3 w-3" aria-hidden="true" />
               {commentCount} {commentCount === 1 ? "comment" : "comments"}
             </span>
           </div>

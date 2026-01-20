@@ -60,8 +60,8 @@ export function DesignDocViewer({ designDocPath, epicId }: DesignDocViewerProps)
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center justify-center gap-2 text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="text-sm">Loading design document...</span>
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            <span className="text-sm">Loading design document…</span>
           </div>
         </CardContent>
       </Card>
@@ -85,12 +85,12 @@ export function DesignDocViewer({ designDocPath, epicId }: DesignDocViewerProps)
     <Card
       className={cn(
         "transition-all",
-        isFullScreen && "fixed inset-4 z-50 overflow-auto"
+        isFullScreen && "fixed inset-4 z-50 overflow-auto overscroll-contain"
       )}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
         <div className="flex items-center gap-2">
-          <FileText className="h-4 w-4 text-muted-foreground" />
+          <FileText className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
           <CardTitle className="text-sm font-semibold">Design Document</CardTitle>
           <Badge variant="outline" className="text-[10px] px-1.5 py-0">
             {epicId}
