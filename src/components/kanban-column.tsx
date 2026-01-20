@@ -20,6 +20,8 @@ export interface KanbanColumnProps {
   onSelectBead: (bead: Bead) => void;
   onChildClick?: (child: Bead) => void;
   onNavigateToDependency?: (beadId: string) => void;
+  /** Project root path for fetching design docs */
+  projectPath?: string;
 }
 
 /**
@@ -80,6 +82,7 @@ export function KanbanColumn({
   onSelectBead,
   onChildClick,
   onNavigateToDependency,
+  projectPath,
 }: KanbanColumnProps) {
   return (
     <div
@@ -115,6 +118,7 @@ export function KanbanColumn({
                   onSelect={onSelectBead}
                   onChildClick={onChildClick ?? onSelectBead}
                   onNavigateToDependency={onNavigateToDependency}
+                  projectPath={projectPath}
                 />
               );
             }

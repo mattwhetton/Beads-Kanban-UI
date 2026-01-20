@@ -450,6 +450,7 @@ export default function KanbanBoard() {
                 onSelectBead={handleSelectBead}
                 onChildClick={handleChildClick}
                 onNavigateToDependency={handleNavigateToDependency}
+                projectPath={project?.path}
               />
             ))}
           </div>

@@ -8,6 +8,7 @@ import type { Bead, Epic, EpicProgress } from "@/types";
 import { ChevronDown, ChevronRight, FileText, Layers, MessageSquare } from "lucide-react";
 import { SubtaskList } from "@/components/subtask-list";
 import { DependencyBadge } from "@/components/dependency-badge";
+import { DesignDocPreview } from "@/components/design-doc-preview";
 import { computeEpicProgress } from "@/lib/epic-parser";
 
 export interface EpicCardProps {
@@ -25,6 +26,8 @@ export interface EpicCardProps {
   onChildClick: (child: Bead) => void;
   /** Callback when navigating to a dependency */
   onNavigateToDependency?: (beadId: string) => void;
+  /** Project root path for fetching design docs */
+  projectPath?: string;
 }
 
 /**
@@ -92,9 +95,11 @@ export function EpicCard({
   isSelected = false,
   onSelect,
   onChildClick,
-  onNavigateToDependency
+  onNavigateToDependency,
+  projectPath
 }: EpicCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isDesignPreviewExpanded, setIsDesignPreviewExpanded] = useState(false);
 
   // Resolve children from IDs
   const children = (epic.children || [])
@@ -216,6 +221,35 @@ export function EpicCard({
             )}
           </div>
         </div>
+
+        {/* Design Doc Preview */}
+        {hasDesignDoc && projectPath && (
+          <div className="pt-2 border-t border-purple-200 dark:border-purple-900/30">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDesignPreviewExpanded(!isDesignPreviewExpanded);
+              }}
+              aria-expanded={isDesignPreviewExpanded}
+              aria-label={`${isDesignPreviewExpanded ? 'Collapse' : 'Expand'} design preview`}
+              className="flex items-center gap-1 text-xs font-semibold text-purple-700 dark:text-purple-300 hover:underline mb-2"
+            >
+              {isDesignPreviewExpanded ? (
+                <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+              ) : (
+                <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+              )}
+              Design Preview
+            </button>
+            {isDesignPreviewExpanded && (
+              <DesignDocPreview
+                designDocPath={epic.design_doc!}
+                epicId={epic.id}
+                projectPath={projectPath}
+              />
+            )}
+          </div>
+        )}
 
         {/* Children Preview/List */}
         <div className="pt-2 border-t border-purple-200 dark:border-purple-900/30">
