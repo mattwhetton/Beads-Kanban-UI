@@ -8,6 +8,7 @@ import type { Bead, Epic, EpicProgress } from "@/types";
 import { ChevronDown, ChevronRight, FileText, Layers, MessageSquare } from "lucide-react";
 import { SubtaskList } from "@/components/subtask-list";
 import { DependencyBadge } from "@/components/dependency-badge";
+import { computeEpicProgress } from "@/lib/epic-parser";
 
 export interface EpicCardProps {
   /** Epic bead with children */
@@ -64,14 +65,10 @@ function truncate(text: string, maxLength: number): string {
 
 /**
  * Compute epic progress from children
+ * Uses epic-parser utility for proper dependency resolution
  */
-function computeProgress(children: Bead[]): EpicProgress {
-  const total = children.length;
-  const completed = children.filter(c => c.status === 'closed').length;
-  const inProgress = children.filter(c => c.status === 'in_progress').length;
-  const blocked = children.filter(c => (c.deps?.length ?? 0) > 0).length;
-  
-  return { total, completed, inProgress, blocked };
+function computeProgress(epic: Epic, allBeads: Bead[]): EpicProgress {
+  return computeEpicProgress(epic, allBeads);
 }
 
 /**
@@ -104,7 +101,7 @@ export function EpicCard({
     .map(childId => allBeads.find(b => b.id === childId))
     .filter((b): b is Bead => b !== undefined);
 
-  const progress = computeProgress(children);
+  const progress = computeProgress(epic, allBeads);
   const progressPercentage = progress.total > 0 
     ? Math.round((progress.completed / progress.total) * 100) 
     : 0;
