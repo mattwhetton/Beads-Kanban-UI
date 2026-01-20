@@ -38,6 +38,12 @@ export interface Bead {
   created_at: string;
   updated_at: string;
   comments: Comment[];
+  // Epic support fields
+  parent_id?: string;         // ID of parent epic (for child tasks)
+  children?: string[];        // IDs of child tasks (for epics)
+  design_doc?: string;        // Path like ".designs/{EPIC_ID}.md"
+  deps?: string[];            // Dependency IDs (blocking this task)
+  blockers?: string[];        // COMPUTED: Tasks this blocks (derived from deps relationships)
 }
 
 /**
@@ -68,4 +74,23 @@ export interface PRInfo {
   state: 'OPEN' | 'MERGED' | 'CLOSED';
   reviewDecision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REVIEW_REQUIRED' | null;
   statusCheckRollup: { state: 'SUCCESS' | 'FAILURE' | 'PENDING' } | null;
+}
+
+/**
+ * Epic progress metrics (computed from children)
+ */
+export interface EpicProgress {
+  total: number;       // Total number of child tasks
+  completed: number;   // Number of children with status 'closed'
+  inProgress: number;  // Number of children with status 'in_progress'
+  blocked: number;     // Number of children with unresolved dependencies
+}
+
+/**
+ * Epic-specific bead type
+ */
+export interface Epic extends Bead {
+  issue_type: 'epic';
+  children: string[];     // Epics always have children (required, not optional)
+  progress?: EpicProgress; // Computed progress metrics
 }
