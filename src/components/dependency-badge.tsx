@@ -19,9 +19,12 @@ export interface DependencyBadgeProps {
  * Red badge if this task is blocked (has unresolved deps)
  * Orange badge if this task blocks others
  */
-export function DependencyBadge({ deps = [], blockers = [], onNavigate }: DependencyBadgeProps) {
-  const isBlocked = deps.length > 0;
-  const isBlocking = blockers.length > 0;
+export function DependencyBadge({ deps, blockers, onNavigate }: DependencyBadgeProps) {
+  // Handle null values from data (default params only work for undefined)
+  const safeDeps = deps ?? [];
+  const safeBlockers = blockers ?? [];
+  const isBlocked = safeDeps.length > 0;
+  const isBlocking = safeBlockers.length > 0;
 
   if (!isBlocked && !isBlocking) {
     return null;
@@ -44,7 +47,7 @@ export function DependencyBadge({ deps = [], blockers = [], onNavigate }: Depend
           <TooltipContent side="top" className="max-w-xs">
             <div className="space-y-1">
               <p className="font-semibold">Blocked by:</p>
-              {deps.map((depId) => (
+              {safeDeps.map((depId) => (
                 <button
                   key={depId}
                   onClick={(e) => {
@@ -82,7 +85,7 @@ export function DependencyBadge({ deps = [], blockers = [], onNavigate }: Depend
         <TooltipContent side="top" className="max-w-xs">
           <div className="space-y-1">
             <p className="font-semibold">Blocking:</p>
-            {blockers.map((blockerId) => (
+            {safeBlockers.map((blockerId) => (
               <button
                 key={blockerId}
                 onClick={(e) => {
