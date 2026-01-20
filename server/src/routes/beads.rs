@@ -394,4 +394,20 @@ mod tests {
         assert_eq!(bead.comments.as_ref().unwrap().len(), 1);
         assert_eq!(bead.comments.as_ref().unwrap()[0].text, "A comment");
     }
+
+    #[test]
+    fn test_parse_bead_with_design_field() {
+        // Test that alias "design" works
+        let json = r#"{"id":"test-789","title":"With Design","status":"open","design":"path/to/design.md"}"#;
+        let bead: Bead = serde_json::from_str(json).unwrap();
+        assert_eq!(bead.design_doc, Some("path/to/design.md".to_string()));
+    }
+
+    #[test]
+    fn test_parse_bead_with_design_doc_field() {
+        // Test that original "design_doc" still works
+        let json = r#"{"id":"test-790","title":"With Design Doc","status":"open","design_doc":"path/to/design2.md"}"#;
+        let bead: Bead = serde_json::from_str(json).unwrap();
+        assert_eq!(bead.design_doc, Some("path/to/design2.md".to_string()));
+    }
 }
