@@ -114,6 +114,7 @@ async fn main() {
         .route("/api/beads/comment", post(routes::beads::add_comment))
         .route("/api/fs/list", get(routes::fs::list_directory))
         .route("/api/fs/exists", get(routes::fs::path_exists))
+        .route("/api/fs/read", get(routes::fs::read_file))
         .route("/api/bd/command", post(routes::cli::bd_command))
         .route("/api/git/branch-status", get(routes::git::branch_status))
         .route("/api/watch/beads", get(routes::watch_beads))

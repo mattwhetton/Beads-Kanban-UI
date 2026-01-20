@@ -9,7 +9,7 @@ use std::time::Duration;
 use tokio::process::Command;
 
 /// Whitelisted bd subcommands that are allowed to be executed.
-const ALLOWED_COMMANDS: &[&str] = &["list", "show", "comment", "update", "close", "create"];
+const ALLOWED_COMMANDS: &[&str] = &["list", "show", "comment", "update", "close", "create", "ready", "epic"];
 
 /// Request body for the bd command endpoint.
 #[derive(Deserialize)]

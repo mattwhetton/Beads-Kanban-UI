@@ -48,6 +48,14 @@ pub struct Bead {
     pub close_reason: Option<String>,
     #[serde(default)]
     pub comments: Option<Vec<Comment>>,
+    #[serde(default)]
+    pub parent_id: Option<String>,
+    #[serde(default)]
+    pub children: Option<Vec<String>>,
+    #[serde(default)]
+    pub design_doc: Option<String>,
+    #[serde(default)]
+    pub deps: Option<Vec<String>>,
 }
 
 /// A comment on a bead.

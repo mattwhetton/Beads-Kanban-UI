@@ -52,3 +52,4 @@ CLAUDE.md
 SPEC.md
 test-*.md
 test-*.txt
+.verification_logs/
