@@ -229,7 +229,7 @@ export function BeadDetail({
               onClick={() => setIsDesignDocExpanded(!isDesignDocExpanded)}
               aria-expanded={isDesignDocExpanded}
               aria-label={`${isDesignDocExpanded ? 'Collapse' : 'Expand'} design document`}
-              className="flex items-center gap-1.5 text-sm font-semibold mb-3 hover:underline transition-colors"
+              className="flex items-center gap-1.5 text-sm font-semibold mb-3 hover:underline transition-[color,text-decoration-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {isDesignDocExpanded ? (
                 <ChevronDown className="size-4" aria-hidden="true" />
