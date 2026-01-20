@@ -22,6 +22,14 @@ pub struct BeadsParams {
     pub path: String,
 }
 
+/// A dependency relationship in the JSONL file.
+#[derive(Debug, Deserialize, Clone)]
+struct Dependency {
+    depends_on_id: String,
+    #[serde(rename = "type")]
+    dep_type: String,
+}
+
 /// A single bead/issue from the JSONL file.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Bead {
@@ -56,6 +64,8 @@ pub struct Bead {
     pub design_doc: Option<String>,
     #[serde(default)]
     pub deps: Option<Vec<String>>,
+    #[serde(default, skip_serializing)]
+    dependencies: Option<Vec<Dependency>>,
 }
 
 /// A comment on a bead.
@@ -123,6 +133,35 @@ pub async fn read_beads(Query(params): Query<BeadsParams>) -> impl IntoResponse 
                 );
                 // Continue parsing other lines - graceful handling of malformed lines
             }
+        }
+    }
+
+    // Post-process: Transform dependencies into parent_id and children
+    // Build a map of parent_id -> Vec<child_id>
+    let mut parent_to_children: std::collections::HashMap<String, Vec<String>> =
+        std::collections::HashMap::new();
+
+    // First pass: Extract parent-child relationships and set parent_id
+    for bead in &mut beads {
+        if let Some(deps) = &bead.dependencies {
+            for dep in deps {
+                if dep.dep_type == "parent-child" {
+                    // Set parent_id on this bead
+                    bead.parent_id = Some(dep.depends_on_id.clone());
+                    // Record this bead as a child of the parent
+                    parent_to_children
+                        .entry(dep.depends_on_id.clone())
+                        .or_default()
+                        .push(bead.id.clone());
+                }
+            }
+        }
+    }
+
+    // Second pass: Set children on parent beads
+    for bead in &mut beads {
+        if let Some(children) = parent_to_children.get(&bead.id) {
+            bead.children = Some(children.clone());
         }
     }
 
