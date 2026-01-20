@@ -61,6 +61,17 @@ const PRIORITIES = [
 ];
 
 /**
+ * Issue type filter options
+ */
+type IssueTypeFilter = "all" | "epics" | "tasks";
+
+const ISSUE_TYPES: { value: IssueTypeFilter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "epics", label: "Epics Only" },
+  { value: "tasks", label: "Tasks Only" },
+];
+
+/**
  * Main Kanban board component with 4 columns, search, filter, and keyboard navigation
  */
 export default function KanbanBoard() {
@@ -97,6 +108,9 @@ export default function KanbanBoard() {
     availableOwners,
   } = useBeadFilters(beads, 300);
 
+  // Issue type filter state (epics vs tasks)
+  const [typeFilter, setTypeFilter] = useState<IssueTypeFilter>("all");
+
   // Fetch branch statuses for all beads
   const beadIds = useMemo(() => beads.map((b) => b.id), [beads]);
   const { statuses: branchStatuses } = useBranchStatuses(
@@ -106,11 +120,19 @@ export default function KanbanBoard() {
 
   /**
    * Filter to only top-level beads (no parent_id)
+   * Then apply issue type filter (epics vs tasks)
    * Child tasks should not appear in columns - they appear inside epic cards
    */
   const topLevelBeads = useMemo(() => {
-    return filteredBeads.filter(b => !b.parent_id);
-  }, [filteredBeads]);
+    const topLevel = filteredBeads.filter(b => !b.parent_id);
+
+    // Apply issue type filter
+    if (typeFilter === "all") return topLevel;
+    if (typeFilter === "epics") return topLevel.filter(b => b.issue_type === "epic");
+    if (typeFilter === "tasks") return topLevel.filter(b => b.issue_type !== "epic");
+
+    return topLevel;
+  }, [filteredBeads, typeFilter]);
 
   /**
    * Group top-level beads by status for columns
@@ -327,7 +349,21 @@ export default function KanbanBoard() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
+              {/* Issue Type Filter */}
+              <DropdownMenuLabel>Issue Type</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {ISSUE_TYPES.map(({ value, label }) => (
+                <DropdownMenuCheckboxItem
+                  key={value}
+                  checked={typeFilter === value}
+                  onCheckedChange={() => setTypeFilter(value)}
+                >
+                  {label}
+                </DropdownMenuCheckboxItem>
+              ))}
+
               {/* Status Filter */}
+              <DropdownMenuSeparator />
               <DropdownMenuLabel>Status</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {STATUSES.map(({ value, label }) => (
