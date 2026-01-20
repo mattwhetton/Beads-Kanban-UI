@@ -239,7 +239,7 @@ export function EpicCard({
             Child Tasks ({children.length})
           </button>
           <SubtaskList
-            children={children}
+            childTasks={children}
             onChildClick={onChildClick}
             maxCollapsed={3}
             isExpanded={isExpanded}

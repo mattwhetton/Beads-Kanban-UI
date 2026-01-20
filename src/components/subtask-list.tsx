@@ -6,7 +6,7 @@ import { Check, Circle, Clock, FileCheck } from "lucide-react";
 
 export interface SubtaskListProps {
   /** Child tasks to display */
-  children: Bead[];
+  childTasks: Bead[];
   /** Callback when clicking a child task */
   onChildClick: (child: Bead) => void;
   /** Maximum number of children to show when collapsed */
@@ -61,12 +61,12 @@ function truncate(text: string, maxLength: number): string {
  * Compact list of child tasks within epic card
  */
 export function SubtaskList({
-  children,
+  childTasks,
   onChildClick,
   maxCollapsed = 3,
   isExpanded = false
 }: SubtaskListProps) {
-  if (children.length === 0) {
+  if (childTasks.length === 0) {
     return (
       <div className="text-xs text-muted-foreground italic">
         No child tasks
@@ -74,8 +74,8 @@ export function SubtaskList({
     );
   }
 
-  const displayChildren = isExpanded ? children : children.slice(0, maxCollapsed);
-  const hasMore = children.length > maxCollapsed && !isExpanded;
+  const displayChildren = isExpanded ? childTasks : childTasks.slice(0, maxCollapsed);
+  const hasMore = childTasks.length > maxCollapsed && !isExpanded;
 
   return (
     <div className="space-y-1">
@@ -120,7 +120,7 @@ export function SubtaskList({
       ))}
       {hasMore && (
         <p className="text-[10px] text-muted-foreground text-center py-1">
-          +{children.length - maxCollapsed} more
+          +{childTasks.length - maxCollapsed} more
         </p>
       )}
     </div>
