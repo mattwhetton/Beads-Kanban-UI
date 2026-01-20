@@ -60,7 +60,7 @@ pub struct Bead {
     pub parent_id: Option<String>,
     #[serde(default)]
     pub children: Option<Vec<String>>,
-    #[serde(default)]
+    #[serde(default, alias = "design")]
     pub design_doc: Option<String>,
     #[serde(default)]
     pub deps: Option<Vec<String>>,
