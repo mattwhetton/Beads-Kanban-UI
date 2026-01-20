@@ -21,6 +21,8 @@ export interface BeadDetailProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children?: React.ReactNode;
+  /** Project root path (absolute) */
+  projectPath?: string;
 }
 
 /**
@@ -113,6 +115,7 @@ export function BeadDetail({
   open,
   onOpenChange,
   children,
+  projectPath,
 }: BeadDetailProps) {
   const branchName = `bd-${formatBeadId(bead.id)}`;
   const [isDesignDocExpanded, setIsDesignDocExpanded] = useState(true);
@@ -238,10 +241,11 @@ export function BeadDetail({
               )}
               Design Document
             </button>
-            {isDesignDocExpanded && (
+            {isDesignDocExpanded && projectPath && (
               <DesignDocViewer
                 designDocPath={bead.design_doc!}
                 epicId={formatBeadId(bead.id)}
+                projectPath={projectPath}
               />
             )}
           </div>

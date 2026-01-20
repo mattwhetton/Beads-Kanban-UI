@@ -468,6 +468,7 @@ export default function KanbanBoard() {
               setDetailBeadId(null);
             }
           }}
+          projectPath={project?.path ?? ""}
         >
           <CommentList
             comments={detailBead.comments}

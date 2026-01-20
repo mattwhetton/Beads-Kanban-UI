@@ -30,8 +30,10 @@ pub struct FsExistsParams {
 /// Query parameters for the read file endpoint.
 #[derive(Debug, Deserialize)]
 pub struct FsReadParams {
-    /// The file path to read
+    /// The file path to read (relative, e.g., ".designs/epic.md")
     pub path: String,
+    /// The project path (absolute directory path)
+    pub project_path: String,
 }
 
 /// A single directory entry.
@@ -146,7 +148,7 @@ pub async fn path_exists(Query(params): Query<FsExistsParams>) -> impl IntoRespo
     (StatusCode::OK, Json(serde_json::json!({ "exists": exists })))
 }
 
-/// GET /api/fs/read?path=.designs/{EPIC_ID}.md
+/// GET /api/fs/read?path=.designs/{EPIC_ID}.md&project_path=/absolute/path
 ///
 /// Reads a design document file from the .designs directory.
 ///
@@ -156,8 +158,6 @@ pub async fn path_exists(Query(params): Query<FsExistsParams>) -> impl IntoRespo
 /// - Path must be within project directory
 /// - Path must start with ".designs/"
 pub async fn read_file(Query(params): Query<FsReadParams>) -> impl IntoResponse {
-    let file_path = PathBuf::from(&params.path);
-
     // Security: Path must start with .designs/
     if !params.path.starts_with(".designs/") {
         return (
@@ -168,8 +168,11 @@ pub async fn read_file(Query(params): Query<FsReadParams>) -> impl IntoResponse 
         );
     }
 
+    // Parse relative path to validate extension
+    let relative_path = PathBuf::from(&params.path);
+
     // Security: Only .md extension allowed
-    if file_path.extension().and_then(|s| s.to_str()) != Some("md") {
+    if relative_path.extension().and_then(|s| s.to_str()) != Some("md") {
         return (
             StatusCode::FORBIDDEN,
             Json(serde_json::json!({
@@ -178,7 +181,11 @@ pub async fn read_file(Query(params): Query<FsReadParams>) -> impl IntoResponse 
         );
     }
 
-    // Security: Validate path is within allowed directories
+    // Join project path with relative design doc path to get absolute path
+    let project_root = PathBuf::from(&params.project_path);
+    let file_path = project_root.join(&params.path);
+
+    // Security: Validate absolute path is within allowed directories
     if let Err(e) = validate_path_security(&file_path) {
         return (
             StatusCode::FORBIDDEN,

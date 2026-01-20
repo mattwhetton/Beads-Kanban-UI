@@ -14,14 +14,19 @@ export interface DesignDocViewerProps {
   designDocPath: string;
   /** Epic ID for display */
   epicId: string;
+  /** Project root path (absolute) */
+  projectPath: string;
 }
 
 /**
  * Fetch design doc content from API
  */
-async function fetchDesignDoc(path: string): Promise<string> {
+async function fetchDesignDoc(path: string, projectPath: string): Promise<string> {
   const encodedPath = encodeURIComponent(path);
-  const response = await fetch('/api/fs/read?path=' + encodedPath);
+  const encodedProjectPath = encodeURIComponent(projectPath);
+  const response = await fetch(
+    `/api/fs/read?path=${encodedPath}&project_path=${encodedProjectPath}`
+  );
   if (!response.ok) {
     throw new Error('Failed to fetch design doc: ' + response.statusText);
   }
@@ -32,7 +37,7 @@ async function fetchDesignDoc(path: string): Promise<string> {
 /**
  * Markdown renderer for design docs with syntax highlighting
  */
-export function DesignDocViewer({ designDocPath, epicId }: DesignDocViewerProps) {
+export function DesignDocViewer({ designDocPath, epicId, projectPath }: DesignDocViewerProps) {
   const [content, setContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +48,7 @@ export function DesignDocViewer({ designDocPath, epicId }: DesignDocViewerProps)
       try {
         setIsLoading(true);
         setError(null);
-        const docContent = await fetchDesignDoc(designDocPath);
+        const docContent = await fetchDesignDoc(designDocPath, projectPath);
         setContent(docContent);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load design doc");
@@ -53,7 +58,7 @@ export function DesignDocViewer({ designDocPath, epicId }: DesignDocViewerProps)
     };
 
     loadDoc();
-  }, [designDocPath]);
+  }, [designDocPath, projectPath]);
 
   if (isLoading) {
     return (
