@@ -26,7 +26,7 @@ import { useProject } from "@/hooks/use-project";
 import { useBeadFilters } from "@/hooks/use-bead-filters";
 import { useBranchStatuses } from "@/hooks/use-branch-statuses";
 import { useKeyboardNavigation } from "@/hooks/use-keyboard-navigation";
-import type { Bead, BeadStatus } from "@/types";
+import type { Bead, BeadStatus, Epic } from "@/types";
 
 /**
  * Column configuration for the Kanban board
@@ -105,7 +105,15 @@ export default function KanbanBoard() {
   );
 
   /**
-   * Group filtered beads by status for columns
+   * Filter to only top-level beads (no parent_id)
+   * Child tasks should not appear in columns - they appear inside epic cards
+   */
+  const topLevelBeads = useMemo(() => {
+    return filteredBeads.filter(b => !b.parent_id);
+  }, [filteredBeads]);
+
+  /**
+   * Group top-level beads by status for columns
    */
   const filteredBeadsByStatus = useMemo(() => {
     const grouped: Record<BeadStatus, Bead[]> = {
@@ -114,11 +122,11 @@ export default function KanbanBoard() {
       inreview: [],
       closed: [],
     };
-    filteredBeads.forEach((bead) => {
+    topLevelBeads.forEach((bead) => {
       grouped[bead.status].push(bead);
     });
     return grouped;
-  }, [filteredBeads]);
+  }, [topLevelBeads]);
 
   // Detail sheet state
   const [detailBeadId, setDetailBeadId] = useState<string | null>(null);
@@ -133,9 +141,9 @@ export default function KanbanBoard() {
   // Ref for search input (keyboard navigation)
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Keyboard navigation
+  // Keyboard navigation (use top-level beads for navigation)
   const { selectedId } = useKeyboardNavigation({
-    beads: filteredBeads,
+    beads: topLevelBeads,
     beadsByStatus: filteredBeadsByStatus,
     selectedId: null,
     onSelect: () => {
@@ -161,9 +169,26 @@ export default function KanbanBoard() {
 
   /**
    * Handle bead selection - opens detail panel
+   * Works for both epics and standalone tasks
    */
   const handleSelectBead = (bead: Bead) => {
     setDetailBeadId(bead.id);
+    setIsDetailOpen(true);
+  };
+
+  /**
+   * Handle child task click from within an epic
+   */
+  const handleChildClick = (child: Bead) => {
+    setDetailBeadId(child.id);
+    setIsDetailOpen(true);
+  };
+
+  /**
+   * Handle navigation to a dependency from DependencyBadge
+   */
+  const handleNavigateToDependency = (beadId: string) => {
+    setDetailBeadId(beadId);
     setIsDetailOpen(true);
   };
 
@@ -382,10 +407,13 @@ export default function KanbanBoard() {
                 status={status}
                 title={title}
                 beads={filteredBeadsByStatus[status] || []}
+                allBeads={beads}
                 selectedBeadId={selectedId}
                 ticketNumbers={ticketNumbers}
                 branchStatuses={branchStatuses}
                 onSelectBead={handleSelectBead}
+                onChildClick={handleChildClick}
+                onNavigateToDependency={handleNavigateToDependency}
               />
             ))}
           </div>
