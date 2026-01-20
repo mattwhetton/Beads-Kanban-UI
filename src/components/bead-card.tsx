@@ -78,12 +78,16 @@ function formatBranchStatus(beadId: string, status: BranchStatus): string {
 }
 
 /**
- * Detect if bead is blocked by checking comments for "BLOCKED" keyword
+ * Detect if bead is blocked by checking for unresolved dependencies
+ * A task is blocked only if it has unresolved dependencies
+ * Closed tasks are never blocked (they've completed)
+ * Note: The deps field only contains UNRESOLVED dependencies (backend filters out closed deps)
  */
 function isBlocked(bead: Bead): boolean {
-  return (bead.comments ?? []).some((comment) =>
-    comment.text.toUpperCase().includes("BLOCKED")
-  );
+  // Closed tasks are never blocked (they've completed)
+  if (bead.status === 'closed') return false;
+  // A task is blocked if it has unresolved dependencies
+  return (bead.deps ?? []).length > 0;
 }
 
 /**
