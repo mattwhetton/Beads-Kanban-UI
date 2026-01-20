@@ -11,7 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Bead, BeadStatus } from "@/types";
-import { ArrowLeft, GitBranch, Calendar } from "lucide-react";
+import { ArrowLeft, GitBranch, Calendar, ChevronDown, ChevronRight } from "lucide-react";
+import { DesignDocViewer } from "@/components/design-doc-viewer";
+import { useState } from "react";
 
 export interface BeadDetailProps {
   bead: Bead;
@@ -113,6 +115,8 @@ export function BeadDetail({
   children,
 }: BeadDetailProps) {
   const branchName = `bd-${formatBeadId(bead.id)}`;
+  const [isDesignDocExpanded, setIsDesignDocExpanded] = useState(true);
+  const hasDesignDoc = !!bead.design_doc;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -215,6 +219,31 @@ export function BeadDetail({
             <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
               {bead.description}
             </div>
+          </div>
+        )}
+
+        {/* Design Document */}
+        {hasDesignDoc && (
+          <div className="mt-6">
+            <button
+              onClick={() => setIsDesignDocExpanded(!isDesignDocExpanded)}
+              aria-expanded={isDesignDocExpanded}
+              aria-label={`${isDesignDocExpanded ? 'Collapse' : 'Expand'} design document`}
+              className="flex items-center gap-1.5 text-sm font-semibold mb-3 hover:underline transition-colors"
+            >
+              {isDesignDocExpanded ? (
+                <ChevronDown className="size-4" aria-hidden="true" />
+              ) : (
+                <ChevronRight className="size-4" aria-hidden="true" />
+              )}
+              Design Document
+            </button>
+            {isDesignDocExpanded && (
+              <DesignDocViewer
+                designDocPath={bead.design_doc!}
+                epicId={formatBeadId(bead.id)}
+              />
+            )}
           </div>
         )}
 
