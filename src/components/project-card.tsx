@@ -145,7 +145,7 @@ export function ProjectCard({
       <div className="absolute bottom-4 right-4" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" mode="icon" aria-label="Open in external application">
+            <Button variant="ghost" size="sm" mode="icon" className="focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background" aria-label="Open in external application">
               <ExternalLink className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
