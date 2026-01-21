@@ -4,19 +4,9 @@ import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { ArrowLeft, Search, Filter, ChevronDown, X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { QuickFilterBar } from "@/components/quick-filter-bar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
 import { KanbanColumn } from "@/components/kanban-column";
 import { BeadDetail } from "@/components/bead-detail";
 import { CommentList } from "@/components/comment-list";
@@ -27,7 +17,7 @@ import { useProject } from "@/hooks/use-project";
 import { useBeadFilters } from "@/hooks/use-bead-filters";
 import { useBranchStatuses } from "@/hooks/use-branch-statuses";
 import { useKeyboardNavigation } from "@/hooks/use-keyboard-navigation";
-import type { Bead, BeadStatus, Epic } from "@/types";
+import type { Bead, BeadStatus } from "@/types";
 
 /**
  * Column configuration for the Kanban board
@@ -38,16 +28,6 @@ const COLUMNS: { status: BeadStatus; title: string }[] = [
   { status: "in_progress", title: "In Progress" },
   { status: "inreview", title: "In Review" },
   { status: "closed", title: "Closed" },
-];
-
-/**
- * Status filter options
- */
-const STATUSES: { value: BeadStatus; label: string }[] = [
-  { value: "open", label: "Open" },
-  { value: "in_progress", label: "In Progress" },
-  { value: "inreview", label: "In Review" },
-  { value: "closed", label: "Closed" },
 ];
 
 /**
@@ -74,7 +54,6 @@ export default function KanbanBoard() {
   // Fetch beads from project path
   const {
     beads,
-    beadsByStatus,
     ticketNumbers,
     isLoading: beadsLoading,
     error: beadsError,
@@ -86,10 +65,6 @@ export default function KanbanBoard() {
     filters,
     setFilters,
     filteredBeads,
-    clearFilters,
-    hasActiveFilters,
-    activeFilterCount,
-    availableOwners,
   } = useBeadFilters(beads, ticketNumbers, 300);
 
   // Issue type filter state (epics vs tasks)
@@ -198,26 +173,6 @@ export default function KanbanBoard() {
     setIsDetailOpen(true);
   };
 
-  /**
-   * Toggle status filter
-   */
-  const toggleStatus = (status: BeadStatus) => {
-    const newStatuses = filters.statuses.includes(status)
-      ? filters.statuses.filter((s) => s !== status)
-      : [...filters.statuses, status];
-    setFilters({ statuses: newStatuses });
-  };
-
-  /**
-   * Toggle owner filter
-   */
-  const toggleOwner = (owner: string) => {
-    const newOwners = filters.owners.includes(owner)
-      ? filters.owners.filter((o) => o !== owner)
-      : [...filters.owners, owner];
-    setFilters({ owners: newOwners });
-  };
-
   // Redirect state while no project ID
   if (!projectId) {
     return (
@@ -263,117 +218,23 @@ export default function KanbanBoard() {
   return (
     <div className="dark min-h-dvh bg-[#0a0a0a] flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-zinc-800 bg-[#0a0a0a]/80 backdrop-blur-sm px-4 py-3">
-        {/* Left: Back button + Project name */}
-        <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-30 flex items-center justify-center border-b border-zinc-800 bg-[#0a0a0a]/80 backdrop-blur-sm px-4 py-3">
+        {/* Left: Back button - absolute positioned */}
+        <div className="absolute left-4">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/">
               <ArrowLeft className="h-4 w-4" />
               <span className="sr-only">Back to projects</span>
             </Link>
           </Button>
-          <EditableProjectName
-            projectId={project.id}
-            initialName={project.name}
-            onNameUpdated={refetchProject}
-          />
         </div>
 
-        {/* Right: Search + Filter */}
-        <div className="flex items-center gap-2">
-          {/* Search Input with Clear Button */}
-          <div className="relative">
-            <Search aria-hidden="true" className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-            <Input
-              ref={searchInputRef}
-              type="text"
-              aria-label="Search beads"
-              placeholder="Search beads… (press /)"
-              value={filters.search}
-              onChange={(e) => setFilters({ search: e.target.value })}
-              className="pl-8 pr-8 w-[200px] bg-zinc-900/50 border-zinc-800 text-zinc-100 placeholder:text-zinc-500"
-            />
-            {filters.search && (
-              <button
-                type="button"
-                onClick={() => setFilters({ search: "" })}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 hover:text-zinc-100"
-                aria-label="Clear search"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-
-          {/* Filter Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className={
-                  activeFilterCount > 0
-                    ? "gap-1 bg-zinc-800 text-zinc-100 border-zinc-700"
-                    : "gap-1 border-zinc-700 text-zinc-300 hover:bg-zinc-800"
-                }
-              >
-                <Filter aria-hidden="true" className="h-4 w-4" />
-                Filter
-                {activeFilterCount > 0 && (
-                  <span className="ml-1 px-1.5 py-0.5 text-xs bg-zinc-600 text-zinc-100 rounded-full">
-                    {activeFilterCount}
-                  </span>
-                )}
-                <ChevronDown aria-hidden="true" className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              {/* Status Filter */}
-              <DropdownMenuLabel>Status</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {STATUSES.map(({ value, label }) => (
-                <DropdownMenuCheckboxItem
-                  key={value}
-                  checked={filters.statuses.includes(value)}
-                  onCheckedChange={() => toggleStatus(value)}
-                >
-                  {label}
-                </DropdownMenuCheckboxItem>
-              ))}
-
-              {/* Owner/Agent Filter */}
-              {availableOwners.length > 0 && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuLabel>Owner / Agent</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {availableOwners.map((owner) => (
-                    <DropdownMenuCheckboxItem
-                      key={owner}
-                      checked={filters.owners.includes(owner)}
-                      onCheckedChange={() => toggleOwner(owner)}
-                    >
-                      {owner}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-                </>
-              )}
-
-              {/* Clear Filters */}
-              {hasActiveFilters && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={clearFilters}
-                    className="text-destructive focus:text-destructive"
-                  >
-                    Clear filters
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        {/* Center: Project name */}
+        <EditableProjectName
+          projectId={project.id}
+          initialName={project.name}
+          onNameUpdated={refetchProject}
+        />
       </header>
 
       {/* Quick Filter Bar */}
