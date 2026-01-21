@@ -1,10 +1,10 @@
 # Beads Kanban UI
 
-**See all your tasks at a glance. Drag, organize, and track progress across projects—no CLI required.**
+**See all your tasks at a glance. Organize, and track progress across projects - no CLI required.**
 
 A beautiful visual Kanban board for the [Beads CLI](https://github.com/steveyegge/beads) task tracker. Beads stores tasks as git-native files (`.beads/issues.jsonl`), and this UI gives you the dashboard and board you've been missing.
 
-> **Works great with [Beads Orchestration](https://github.com/AvivK5498/Claude-Code-Beads-Orchestration)** — A multi-agent orchestration framework for Claude Code that uses beads for git-native task tracking with mandatory code review gates.
+> **Works great with [Beads Orchestration](https://github.com/AvivK5498/Claude-Code-Beads-Orchestration)** — A multi-agent orchestration framework for Claude Code that uses beads for git-native task tracking.
 
 ## See It in Action
 
@@ -14,22 +14,39 @@ A beautiful visual Kanban board for the [Beads CLI](https://github.com/steveyegg
 **Kanban Board** — Organize tasks across Open → In Progress → In Review → Closed:
 ![Kanban board showing epic groups and task cards with git branch info](Screenshots/kanban-board.png)
 
-**Bead Details** — Dive into any task with full context and subtasks:
+**Bead Details** — Dive into epics with full context and subtasks:
 ![Bead detail panel showing epic with progress bar and subtasks](Screenshots/bead-detail.png)
 
 ## What You Get
 
 - **Multi-project dashboard** — Manage all your beads projects in one place with status donut charts
-- **Kanban board** — Drag-and-drop columns: Open → In Progress → In Review → Closed
+- **Kanban board** — Open → In Progress → In Review → Closed
 - **Epic support** — Group related tasks, track progress with bars, view all subtasks
 - **Real-time sync** — File watcher auto-updates when beads files change on disk
 - **Git integration** — See branch status for each task at a glance
 - **Search & filter** — Quick filters for status, priority, owner, and tags
 - **Project tagging** — Organize with colored tags and filter by them
 
-## Quick Start (3 steps)
+## Quick Start
 
-### 1. Prerequisites
+### Option 1: npm install (Recommended)
+
+**Prerequisites:**
+- Beads CLI: `brew install steveyegge/beads/bd`
+
+**Install and run:**
+```bash
+npm install -g beads-ui
+bead-kanban
+```
+
+That's it! The server starts automatically and opens your browser.
+
+> On first run, the postinstall script downloads the platform binary (~15MB). This is one-time only.
+
+### Option 2: Build from source
+
+**Prerequisites:**
 ```bash
 # Install beads CLI
 brew install steveyegge/beads/bd
@@ -37,7 +54,7 @@ brew install steveyegge/beads/bd
 # You'll also need Node.js 18+ and Rust
 ```
 
-### 2. Install and Run
+**Install and run:**
 ```bash
 git clone https://github.com/AvivK5498/beads-kanban-ui
 cd beads-kanban-ui
@@ -45,10 +62,9 @@ npm install
 npm run dev:full
 ```
 
-### 3. Open in Browser
-Navigate to **`http://localhost:3007`** and add your beads projects.
+Then navigate to **`http://localhost:3007`** and add your beads projects.
 
-That's it! The app watches for file changes and syncs in real-time.
+The app watches for file changes and syncs in real-time.
 
 ---
 
