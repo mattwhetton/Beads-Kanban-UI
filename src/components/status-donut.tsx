@@ -116,15 +116,34 @@ export function StatusDonut({ beadCounts, size = 40, className }: StatusDonutPro
             const startAngle = chartData
               .slice(0, index)
               .reduce((acc, d) => acc + (d.count / total) * 360, 0);
-            const endAngle = startAngle + (entry.count / total) * 360;
+            const segmentAngle = (entry.count / total) * 360;
+            const endAngle = startAngle + segmentAngle;
+
+            // Check if this is a full circle (single segment covering 100%)
+            const isFullCircle = chartData.length === 1;
+
+            if (isFullCircle) {
+              // For full circle, use two semicircular arcs
+              // This avoids the issue where start and end points are the same
+              return (
+                <g key={entry.status}>
+                  {/* First semicircle (top half) */}
+                  <path
+                    d={`M 0 ${-outerRadius} A ${outerRadius} ${outerRadius} 0 0 1 0 ${outerRadius} L 0 ${innerRadius} A ${innerRadius} ${innerRadius} 0 0 0 0 ${-innerRadius} Z`}
+                    fill={entry.fill}
+                  />
+                  {/* Second semicircle (bottom half) */}
+                  <path
+                    d={`M 0 ${outerRadius} A ${outerRadius} ${outerRadius} 0 0 1 0 ${-outerRadius} L 0 ${-innerRadius} A ${innerRadius} ${innerRadius} 0 0 0 0 ${innerRadius} Z`}
+                    fill={entry.fill}
+                  />
+                </g>
+              );
+            }
 
             // Add small padding between segments (only if multiple segments)
-            const adjustedStart = chartData.length > 1
-              ? startAngle + paddingAngle / 2
-              : startAngle;
-            const adjustedEnd = chartData.length > 1
-              ? endAngle - paddingAngle / 2
-              : endAngle;
+            const adjustedStart = startAngle + paddingAngle / 2;
+            const adjustedEnd = endAngle - paddingAngle / 2;
 
             // Convert to radians (SVG uses radians, start from top)
             const startRad = ((adjustedStart - 90) * Math.PI) / 180;
