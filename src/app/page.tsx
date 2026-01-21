@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Plus, ChevronDown, FolderPlus, FolderSearch, Github, Settings } from "lucide-react";
+import { Plus, ChevronDown, FolderPlus, FolderSearch, Github, Settings, Search, X } from "lucide-react";
 import { ProjectCard } from "@/components/project-card";
 import { AddProjectDialog } from "@/components/add-project-dialog";
 import { ScanDirectoryDialog } from "@/components/scan-directory-dialog";
 import { useProjects } from "@/hooks/use-projects";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button, ButtonArrow } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +21,56 @@ import {
 export default function ProjectsPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isScanDialogOpen, setIsScanDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const { projects, isLoading, error, addProject, updateProjectTags } = useProjects();
+
+  // Get all unique tags across projects
+  const allTags = useMemo(() => {
+    const tagMap = new Map<string, { id: string; name: string; color: string }>();
+    projects.forEach((project) => {
+      project.tags.forEach((tag) => {
+        if (!tagMap.has(tag.id)) {
+          tagMap.set(tag.id, tag);
+        }
+      });
+    });
+    return Array.from(tagMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [projects]);
+
+  // Filter projects by search query and selected tags (AND logic)
+  const filteredProjects = useMemo(() => {
+    return projects.filter((project) => {
+      // Search filter - match name or path
+      const searchLower = searchQuery.toLowerCase().trim();
+      const matchesSearch = searchLower === "" ||
+        project.name.toLowerCase().includes(searchLower) ||
+        project.path.toLowerCase().includes(searchLower);
+
+      // Tag filter - AND logic: project must have ALL selected tags
+      const matchesTags = selectedTagIds.length === 0 ||
+        selectedTagIds.every((tagId) =>
+          project.tags.some((tag) => tag.id === tagId)
+        );
+
+      return matchesSearch && matchesTags;
+    });
+  }, [projects, searchQuery, selectedTagIds]);
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTagIds((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((id) => id !== tagId)
+        : [...prev, tagId]
+    );
+  };
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setSelectedTagIds([]);
+  };
+
+  const hasActiveFilters = searchQuery.trim() !== "" || selectedTagIds.length > 0;
 
   const handleAddProject = async (input: { name: string; path: string }) => {
     await addProject(input);
@@ -86,6 +137,83 @@ export default function ProjectsPage() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+
+          {/* Search and Filter Bar */}
+          {projects.length > 0 && (
+            <div className="mb-6 space-y-3">
+              {/* Search Input */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" aria-hidden="true" />
+                <Input
+                  type="search"
+                  placeholder="Search projects..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 bg-zinc-900/50 border-zinc-700"
+                  aria-label="Search projects"
+                />
+              </div>
+
+              {/* Tag Filter Chips */}
+              {allTags.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-zinc-500">Filter by tag:</span>
+                  {allTags.map((tag) => {
+                    const isSelected = selectedTagIds.includes(tag.id);
+                    return (
+                      <button
+                        key={tag.id}
+                        type="button"
+                        onClick={() => toggleTag(tag.id)}
+                        className="transition-opacity"
+                        aria-pressed={isSelected}
+                        aria-label={`Filter by ${tag.name}`}
+                      >
+                        <Badge
+                          variant={isSelected ? "primary" : "outline"}
+                          size="sm"
+                          style={
+                            isSelected
+                              ? {
+                                  backgroundColor: tag.color,
+                                  color: "#fff",
+                                  borderColor: tag.color,
+                                }
+                              : {
+                                  backgroundColor: `${tag.color}10`,
+                                  color: tag.color,
+                                  borderColor: `${tag.color}50`,
+                                }
+                          }
+                        >
+                          {tag.name}
+                        </Badge>
+                      </button>
+                    );
+                  })}
+                  {hasActiveFilters && (
+                    <button
+                      type="button"
+                      onClick={clearFilters}
+                      className="ml-2 flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                      aria-label="Clear all filters"
+                    >
+                      <X className="h-3 w-3" aria-hidden="true" />
+                      Clear
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Results count when filtering */}
+              {hasActiveFilters && (
+                <p className="text-xs text-zinc-500">
+                  Showing {filteredProjects.length} of {projects.length} project{projects.length !== 1 ? "s" : ""}
+                </p>
+              )}
+            </div>
+          )}
+
           {isLoading ? (
             <div role="status" aria-label="Loading projects" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3].map((i) => (
@@ -108,16 +236,25 @@ export default function ProjectsPage() {
                 Make sure the Tauri backend is running.
               </p>
             </div>
-          ) : projects.length === 0 ? (
+          ) : filteredProjects.length === 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div className="rounded-lg border border-dashed border-zinc-700 bg-zinc-900/70 p-6 text-center text-zinc-400">
-                <p>No projects yet</p>
-                <p className="mt-1 text-sm text-zinc-500">Click the Add Project button above to get started</p>
+                {hasActiveFilters ? (
+                  <>
+                    <p>No matching projects</p>
+                    <p className="mt-1 text-sm text-zinc-500">Try adjusting your search or filters</p>
+                  </>
+                ) : (
+                  <>
+                    <p>No projects yet</p>
+                    <p className="mt-1 text-sm text-zinc-500">Click the Add Project button above to get started</p>
+                  </>
+                )}
               </div>
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {projects.map((project) => (
+              {filteredProjects.map((project) => (
                 <ProjectCard
                   key={project.id}
                   id={project.id}
