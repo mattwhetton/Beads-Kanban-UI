@@ -6,14 +6,13 @@ import { StatusDonut } from "@/components/status-donut";
 import {
   RoiuiCard,
   RoiuiCardAction,
-  RoiuiCardContent,
   RoiuiCardDescription,
   RoiuiCardHeader,
   RoiuiCardIcon,
   RoiuiCardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonArrow } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +22,7 @@ import {
 import { TagPicker } from "@/components/tag-picker";
 import { useToast } from "@/hooks/use-toast";
 import * as api from "@/lib/api";
-import { MoreVertical, Code, FolderOpen, Loader2 } from "lucide-react";
+import { ExternalLink, ChevronDown, Code, FolderOpen, Loader2 } from "lucide-react";
 import type { Tag } from "@/lib/db";
 import type { BeadCounts } from "@/types";
 
@@ -57,7 +56,6 @@ export function ProjectCard({
   const router = useRouter();
   const [isOpening, setIsOpening] = useState<string | null>(null);
   const { toast } = useToast();
-  const totalBeads = beadCounts.open + beadCounts.in_progress + beadCounts.inreview + beadCounts.closed;
 
   const handleOpenExternal = async (target: 'vscode' | 'cursor' | 'finder', e: React.MouseEvent) => {
     e.stopPropagation();
@@ -121,13 +119,13 @@ export function ProjectCard({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  variant="ghost"
-                  size="xs"
-                  mode="icon"
-                  className="h-6 w-6 shrink-0"
-                  aria-label="Open project options"
+                  variant="mono"
+                  size="sm"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <MoreVertical className="h-4 w-4" />
+                  <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                  Open In
+                  <ButtonArrow icon={ChevronDown} />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -140,7 +138,7 @@ export function ProjectCard({
                   ) : (
                     <Code className="h-4 w-4" aria-hidden="true" />
                   )}
-                  Open in VS Code
+                  VS Code
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={(e) => handleOpenExternal('cursor', e)}
@@ -151,7 +149,7 @@ export function ProjectCard({
                   ) : (
                     <Code className="h-4 w-4" aria-hidden="true" />
                   )}
-                  Open in Cursor
+                  Cursor
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={(e) => handleOpenExternal('finder', e)}
@@ -162,7 +160,7 @@ export function ProjectCard({
                   ) : (
                     <FolderOpen className="h-4 w-4" aria-hidden="true" />
                   )}
-                  Open in Finder
+                  Finder
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -192,29 +190,6 @@ export function ProjectCard({
           </div>
         </RoiuiCardAction>
       </RoiuiCardHeader>
-      <RoiuiCardContent>
-        {totalBeads > 0 ? (
-          <p className="text-sm text-zinc-400">
-            <span className="text-blue-400">{beadCounts.open} open</span>
-            {beadCounts.inreview > 0 && (
-              <>
-                {" "}
-                <span className="text-zinc-500">·</span>{" "}
-                <span className="text-purple-400">{beadCounts.inreview} in review</span>
-              </>
-            )}
-            {beadCounts.closed > 0 && (
-              <>
-                {" "}
-                <span className="text-zinc-500">·</span>{" "}
-                <span className="text-green-400">{beadCounts.closed} closed</span>
-              </>
-            )}
-          </p>
-        ) : (
-          <p className="text-sm text-zinc-500">No tasks yet</p>
-        )}
-      </RoiuiCardContent>
     </RoiuiCard>
   );
 }
