@@ -12,8 +12,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { FolderBrowser } from "@/components/folder-browser";
+import * as api from "@/lib/api";
 import type { CreateProjectInput } from "@/lib/db";
+import { Folder, Loader2 } from "lucide-react";
 
 interface AddProjectDialogProps {
   open: boolean;
@@ -28,32 +29,63 @@ export function AddProjectDialog({
 }: AddProjectDialogProps) {
   const [projectPath, setProjectPath] = useState<string>("");
   const [projectName, setProjectName] = useState<string>("");
+  const [isValidating, setIsValidating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showNameInput, setShowNameInput] = useState(false);
   const [pathError, setPathError] = useState<string | null>(null);
-  const [browserPath, setBrowserPath] = useState<string>("/Users");
+  const [showNameInput, setShowNameInput] = useState(false);
   const { toast } = useToast();
 
-  const handleSelectPath = (path: string, hasBeads: boolean) => {
-    if (!hasBeads) {
-      setPathError("No .beads folder found. Run `bd init` in your project first.");
-      toast({
-        title: "No .beads folder found",
-        description: "Run `bd init` in your project first.",
-        variant: "destructive",
-      });
+  const resetState = () => {
+    setProjectPath("");
+    setProjectName("");
+    setPathError(null);
+    setShowNameInput(false);
+    setIsValidating(false);
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      resetState();
+    }
+    onOpenChange(open);
+  };
+
+  const validateAndProceed = async () => {
+    if (!projectPath.trim()) {
+      setPathError("Please enter a project path.");
       return;
     }
 
-    // Extract folder name as default project name
-    const cleanPath = path.replace(/\/+$/, "");
-    const pathParts = cleanPath.split(/[/\\]/);
-    const defaultName = pathParts[pathParts.length - 1] || "Untitled Project";
-
-    setProjectPath(cleanPath);
-    setProjectName(defaultName);
+    setIsValidating(true);
     setPathError(null);
-    setShowNameInput(true);
+
+    try {
+      const cleanPath = projectPath.trim().replace(/\/+$/, "");
+      const result = await api.fs.exists(`${cleanPath}/.beads`);
+
+      if (!result.exists) {
+        setPathError("No .beads folder found. Run `bd init` in your project first.");
+        toast({
+          title: "No .beads folder found",
+          description: "Run `bd init` in your project first.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Extract folder name as default project name
+      const pathParts = cleanPath.split(/[/\\]/);
+      const defaultName = pathParts[pathParts.length - 1] || "Untitled Project";
+
+      setProjectPath(cleanPath);
+      setProjectName(defaultName);
+      setShowNameInput(true);
+    } catch (err) {
+      console.error("Error validating path:", err);
+      setPathError("Could not access the specified path. Please check it exists.");
+    } finally {
+      setIsValidating(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,7 +100,7 @@ export function AddProjectDialog({
     try {
       await onAddProject({
         name: projectName.trim(),
-        path: projectPath.replace(/\/+$/, ""),
+        path: projectPath,
       });
 
       toast({
@@ -76,7 +108,6 @@ export function AddProjectDialog({
         description: `"${projectName}" has been added successfully.`,
       });
 
-      // Reset state and close dialog
       resetState();
       onOpenChange(false);
     } catch (err) {
@@ -91,43 +122,60 @@ export function AddProjectDialog({
     }
   };
 
-  const resetState = () => {
-    setProjectPath("");
-    setProjectName("");
-    setShowNameInput(false);
-    setPathError(null);
-    setBrowserPath("/Users");
-  };
-
-  const handleOpenChange = (open: boolean) => {
-    if (!open) {
-      resetState();
-    }
-    onOpenChange(open);
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add Project</DialogTitle>
           <DialogDescription>
             {showNameInput
               ? "Give your project a name."
-              : "Browse to a folder containing a beads project."}
+              : "Enter the path to a folder containing a beads project."}
           </DialogDescription>
         </DialogHeader>
 
         {!showNameInput ? (
           <div className="flex flex-col gap-4 py-4">
-            <FolderBrowser
-              currentPath={browserPath}
-              onPathChange={setBrowserPath}
-              onSelectPath={handleSelectPath}
-            />
-            {pathError && (
-              <p className="text-sm text-red-400">{pathError}</p>
-            )}
+            <div className="space-y-2">
+              <label htmlFor="path" className="text-sm font-medium text-zinc-300">
+                Project Path
+              </label>
+              <div className="relative">
+                <Folder className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" aria-hidden="true" />
+                <Input
+                  id="path"
+                  value={projectPath}
+                  onChange={(e) => {
+                    setProjectPath(e.target.value);
+                    setPathError(null);
+                  }}
+                  placeholder="/path/to/your/project"
+                  className="pl-10"
+                  autoFocus
+                />
+              </div>
+              {pathError && (
+                <p className="text-sm text-red-400">{pathError}</p>
+              )}
+              <p className="text-xs text-zinc-500">
+                Enter the full path to your project folder (must contain a .beads folder).
+              </p>
+            </div>
+            <DialogFooter>
+              <Button
+                onClick={validateAndProceed}
+                disabled={!projectPath.trim() || isValidating}
+              >
+                {isValidating ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                    Validating...
+                  </>
+                ) : (
+                  "Continue"
+                )}
+              </Button>
+            </DialogFooter>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
@@ -160,7 +208,7 @@ export function AddProjectDialog({
                 Back
               </Button>
               <Button type="submit" disabled={isSubmitting || !projectName.trim()}>
-                {isSubmitting ? "Adding\u2026" : "Add Project"}
+                {isSubmitting ? "Adding..." : "Add Project"}
               </Button>
             </DialogFooter>
           </form>

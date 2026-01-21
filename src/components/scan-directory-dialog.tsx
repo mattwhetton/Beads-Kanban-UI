@@ -22,8 +22,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { FolderBrowser } from "@/components/folder-browser";
 import * as api from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Folder, Check, Loader2 } from "lucide-react";
@@ -48,7 +48,6 @@ export function ScanDirectoryDialog({
   onAddProjects,
 }: ScanDirectoryDialogProps) {
   const [step, setStep] = useState<Step>("select");
-  const [browserPath, setBrowserPath] = useState<string>("/Users");
   const [selectedDirectory, setSelectedDirectory] = useState<string>("");
   const [isScanning, setIsScanning] = useState(false);
   const [scannedProjects, setScannedProjects] = useState<ScannedProject[]>([]);
@@ -58,7 +57,6 @@ export function ScanDirectoryDialog({
 
   const resetState = useCallback(() => {
     setStep("select");
-    setBrowserPath("/Users");
     setSelectedDirectory("");
     setScannedProjects([]);
     setIsScanning(false);
@@ -75,10 +73,6 @@ export function ScanDirectoryDialog({
     },
     [onOpenChange, resetState]
   );
-
-  const handleSelectPath = useCallback((path: string) => {
-    setSelectedDirectory(path);
-  }, []);
 
   const scanDirectory = useCallback(async () => {
     if (!selectedDirectory) return;
@@ -191,29 +185,34 @@ export function ScanDirectoryDialog({
 
           {step === "select" && (
             <div className="flex flex-col gap-4 py-4">
-              <FolderBrowser
-                currentPath={browserPath}
-                onPathChange={setBrowserPath}
-                onSelectPath={handleSelectPath}
-              />
-
-              {selectedDirectory && (
-                <div className="rounded-md border border-zinc-700 bg-zinc-800/50 px-3 py-2">
-                  <p className="truncate text-sm text-zinc-300">
-                    <span className="text-zinc-500">Selected: </span>
-                    {selectedDirectory}
-                  </p>
+              <div className="space-y-2">
+                <label htmlFor="scan-path" className="text-sm font-medium text-zinc-300">
+                  Parent Directory
+                </label>
+                <div className="relative">
+                  <Folder className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" aria-hidden="true" />
+                  <Input
+                    id="scan-path"
+                    value={selectedDirectory}
+                    onChange={(e) => setSelectedDirectory(e.target.value)}
+                    placeholder="/path/to/parent/directory"
+                    className="pl-10"
+                    autoFocus
+                  />
                 </div>
-              )}
+                <p className="text-xs text-zinc-500">
+                  Enter a directory path to scan its subdirectories for beads projects.
+                </p>
+              </div>
 
               <DialogFooter>
                 <Button
                   onClick={scanDirectory}
-                  disabled={!selectedDirectory || isScanning}
+                  disabled={!selectedDirectory.trim() || isScanning}
                 >
                   {isScanning ? (
                     <>
-                      <Loader2 className="size-4 animate-spin" />
+                      <Loader2 className="size-4 animate-spin" aria-hidden="true" />
                       Scanning...
                     </>
                   ) : (
