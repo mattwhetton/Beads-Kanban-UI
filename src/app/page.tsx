@@ -19,16 +19,16 @@ export default function ProjectsPage() {
   return (
     <div className="dark min-h-dvh bg-[#0a0a0a]">
       {/* Navigation Bar */}
-      <nav className="sticky top-0 z-50 border-b border-zinc-800/50 bg-[#0a0a0a]/80 backdrop-blur-sm">
-        <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-6">
+      <nav className="sticky top-0 z-30 border-b border-zinc-800 bg-[#0a0a0a]/80 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-4">
           {/* Logo on left */}
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/logo.svg"
               alt="BeadsUI"
-              width={120}
-              height={32}
-              className="h-8 w-auto"
+              width={140}
+              height={40}
+              className="h-10 w-auto"
               priority
             />
           </Link>
