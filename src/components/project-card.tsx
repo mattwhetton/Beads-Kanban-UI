@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
+import { RoiuiCard, RoiuiCardContent, RoiuiCardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TagPicker } from "@/components/tag-picker";
 import type { Tag } from "@/lib/db";
@@ -41,7 +41,7 @@ function formatRelativeTime(dateString: string): string {
   } else if (diffDays < 30) {
     return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
   } else {
-    return date.toLocaleDateString();
+    return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(date);
   }
 }
 
@@ -58,10 +58,10 @@ export function ProjectCard({
 
   return (
     <Link href={`/project?id=${id}`}>
-      <Card className="cursor-pointer transition-shadow hover:shadow-md">
-        <CardContent className="p-4">
+      <RoiuiCard className="cursor-pointer">
+        <RoiuiCardContent>
           {/* Tags with add button */}
-          <div className="mb-3 flex flex-wrap items-center gap-1.5">
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
             {tags.map((tag) => (
               <Badge
                 key={tag.id}
@@ -82,6 +82,7 @@ export function ProjectCard({
                   e.preventDefault();
                   e.stopPropagation();
                 }}
+                onKeyDown={(e) => e.stopPropagation()}
               >
                 <TagPicker
                   projectId={id}
@@ -93,16 +94,16 @@ export function ProjectCard({
           </div>
 
           {/* Project Name */}
-          <h3 className="font-semibold text-zinc-900">{name}</h3>
+          <h3 className="text-balance font-semibold text-zinc-900">{name}</h3>
 
           {/* Path */}
-          <p className="mt-1 truncate text-sm text-zinc-500" title={path}>
+          <p className="truncate text-sm text-zinc-500" title={path}>
             {path}
           </p>
 
           {/* Bead Counts */}
           {totalBeads > 0 && (
-            <p className="mt-3 text-sm text-zinc-600">
+            <p className="text-sm text-zinc-600">
               <span className="text-blue-600">{beadCounts.open} open</span>
               {beadCounts.inreview > 0 && (
                 <>
@@ -120,13 +121,15 @@ export function ProjectCard({
               )}
             </p>
           )}
+        </RoiuiCardContent>
 
-          {/* Last Opened */}
-          <p className="mt-2 text-xs text-zinc-400">
+        {/* Last Opened */}
+        <RoiuiCardFooter>
+          <p className="text-xs text-zinc-400">
             Last opened: {formatRelativeTime(lastOpened)}
           </p>
-        </CardContent>
-      </Card>
+        </RoiuiCardFooter>
+      </RoiuiCard>
     </Link>
   );
 }
