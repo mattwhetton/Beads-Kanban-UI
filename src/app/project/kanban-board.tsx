@@ -106,7 +106,7 @@ export default function KanbanBoard() {
     hasActiveFilters,
     activeFilterCount,
     availableOwners,
-  } = useBeadFilters(beads, 300);
+  } = useBeadFilters(beads, ticketNumbers, 300);
 
   // Issue type filter state (epics vs tasks)
   const [typeFilter, setTypeFilter] = useState<IssueTypeFilter>("all");

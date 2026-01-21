@@ -11,6 +11,16 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import type { Bead, BeadStatus } from "@/types";
 
 /**
+ * Sort field options
+ */
+export type SortField = "ticket_number" | "created_at";
+
+/**
+ * Sort direction options
+ */
+export type SortDirection = "asc" | "desc";
+
+/**
  * Filter state for beads
  */
 export interface BeadFilters {
@@ -22,6 +32,12 @@ export interface BeadFilters {
   priorities: number[];
   /** Owner/agent filter - empty array means all owners */
   owners: string[];
+  /** Sort field */
+  sortField: SortField;
+  /** Sort direction */
+  sortDirection: SortDirection;
+  /** Filter to items created today and not closed */
+  todayOnly: boolean;
 }
 
 /**
@@ -54,6 +70,9 @@ const DEFAULT_FILTERS: BeadFilters = {
   statuses: [],
   priorities: [],
   owners: [],
+  sortField: "created_at",
+  sortDirection: "desc",
+  todayOnly: false,
 };
 
 /**
@@ -94,6 +113,7 @@ const DEFAULT_FILTERS: BeadFilters = {
  */
 export function useBeadFilters(
   beads: Bead[],
+  ticketNumbers: Map<string, number>,
   debounceMs: number = 300
 ): UseBeadFiltersResult {
   // Filter state
@@ -143,10 +163,13 @@ export function useBeadFilters(
   }, [beads]);
 
   /**
-   * Apply all filters to beads
+   * Apply all filters to beads and sort
    */
   const filteredBeads = useMemo(() => {
-    return beads.filter((bead) => {
+    const { sortField, sortDirection } = filters;
+
+    // Filter beads
+    const filtered = beads.filter((bead) => {
       // Search filter (uses debounced value for performance)
       if (debouncedSearch) {
         const searchLower = debouncedSearch.toLowerCase();
@@ -172,9 +195,32 @@ export function useBeadFilters(
         if (!filters.owners.includes(bead.owner)) return false;
       }
 
+      // Today filter (created today AND not closed)
+      if (filters.todayOnly) {
+        const today = new Date().toISOString().split("T")[0];
+        const createdToday = bead.created_at.startsWith(today);
+        const notClosed = bead.status !== "closed";
+        if (!(createdToday && notClosed)) return false;
+      }
+
       return true;
     });
-  }, [beads, debouncedSearch, filters.statuses, filters.priorities, filters.owners]);
+
+    // Sort the filtered results (use toSorted for immutability)
+    const sorted = filtered.toSorted((a, b) => {
+      if (sortField === "ticket_number") {
+        const aNum = ticketNumbers.get(a.id) ?? 0;
+        const bNum = ticketNumbers.get(b.id) ?? 0;
+        return sortDirection === "asc" ? aNum - bNum : bNum - aNum;
+      }
+      // created_at sort
+      const aDate = new Date(a.created_at).getTime();
+      const bDate = new Date(b.created_at).getTime();
+      return sortDirection === "asc" ? aDate - bDate : bDate - aDate;
+    });
+
+    return sorted;
+  }, [beads, debouncedSearch, filters, ticketNumbers]);
 
   /**
    * Check if any filters are active
@@ -184,7 +230,10 @@ export function useBeadFilters(
       filters.search !== "" ||
       filters.statuses.length > 0 ||
       filters.priorities.length > 0 ||
-      filters.owners.length > 0
+      filters.owners.length > 0 ||
+      filters.todayOnly ||
+      filters.sortField !== DEFAULT_FILTERS.sortField ||
+      filters.sortDirection !== DEFAULT_FILTERS.sortDirection
     );
   }, [filters]);
 
@@ -196,6 +245,7 @@ export function useBeadFilters(
     if (filters.statuses.length > 0) count++;
     if (filters.priorities.length > 0) count++;
     if (filters.owners.length > 0) count++;
+    if (filters.todayOnly) count++;
     return count;
   }, [filters]);
 
