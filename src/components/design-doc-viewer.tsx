@@ -90,7 +90,7 @@ function useWheelScrollRef() {
         if ((e.deltaY < 0 && canScrollUp) || (e.deltaY > 0 && canScrollDown)) {
           e.preventDefault();
           e.stopPropagation();
-          el.scrollTop += e.deltaY;
+          el.scrollBy({ top: e.deltaY, behavior: 'smooth' });
         }
       };
 
