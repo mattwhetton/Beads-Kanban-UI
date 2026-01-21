@@ -160,9 +160,9 @@ export function DesignDocViewer({ designDocPath, epicId, projectPath, onFullScre
 
       <MorphingDialogContainer>
         <MorphingDialogContent
-          className="relative bg-background border rounded-lg shadow-lg w-[60vw] max-h-[80vh] flex flex-col"
+          className="relative bg-background border rounded-lg shadow-lg w-[60vw] max-h-[80vh] flex flex-col overflow-hidden"
         >
-          <div className="p-6 overflow-y-auto flex-1 min-h-0">
+          <div className="p-6 overflow-y-auto flex-1 min-h-0 overscroll-contain">
             <div className="flex items-center gap-2 mb-4">
               <FileText className="size-4 text-muted-foreground" aria-hidden="true" />
               <MorphingDialogTitle>
