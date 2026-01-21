@@ -307,7 +307,17 @@ export default function ProjectsPage() {
 
       {/* Footer */}
       <footer className="mt-auto border-t border-zinc-800 py-6">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-center px-6">
+        <div className="mx-auto flex max-w-[1200px] items-center justify-center gap-4 px-6">
+          <a
+            href="https://github.com/AvivK5498/beads-kanban-ui"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-sm text-zinc-500 transition-colors hover:text-zinc-300"
+          >
+            <Github className="h-4 w-4" aria-hidden="true" />
+            <span>Beads Kanban UI</span>
+          </a>
+          <span className="text-zinc-600" aria-hidden="true">·</span>
           <a
             href="https://github.com/steveyegge/beads"
             target="_blank"
