@@ -80,7 +80,7 @@ export function ProjectCard({
 
   return (
     <RoiuiCard
-      className="cursor-pointer flex flex-col min-h-[180px]"
+      className="cursor-pointer flex flex-col min-h-[155px]"
       onClick={handleCardClick}
       role="link"
       tabIndex={0}
