@@ -119,13 +119,17 @@ export function BeadDetail({
 }: BeadDetailProps) {
   const branchName = `bd-${formatBeadId(bead.id)}`;
   const [isDesignDocExpanded, setIsDesignDocExpanded] = useState(false);
+  const [isDesignDocFullScreen, setIsDesignDocFullScreen] = useState(false);
   const hasDesignDoc = !!bead.design_doc;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-lg md:max-w-xl overflow-y-auto"
+        className={cn(
+          "w-full sm:max-w-lg md:max-w-xl overflow-y-auto",
+          isDesignDocFullScreen && "invisible"
+        )}
       >
         {/* Header with Back button */}
         <div className="flex items-center justify-between mb-6">
@@ -246,6 +250,7 @@ export function BeadDetail({
                 designDocPath={bead.design_doc!}
                 epicId={formatBeadId(bead.id)}
                 projectPath={projectPath}
+                onFullScreenChange={setIsDesignDocFullScreen}
               />
             )}
           </div>

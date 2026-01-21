@@ -18,6 +18,8 @@ export interface DesignDocViewerProps {
   epicId: string;
   /** Project root path (absolute) */
   projectPath: string;
+  /** Callback when fullscreen state changes */
+  onFullScreenChange?: (isFullScreen: boolean) => void;
 }
 
 /**
@@ -39,11 +41,16 @@ async function fetchDesignDoc(path: string, projectPath: string): Promise<string
 /**
  * Markdown renderer for design docs with syntax highlighting
  */
-export function DesignDocViewer({ designDocPath, epicId, projectPath }: DesignDocViewerProps) {
+export function DesignDocViewer({ designDocPath, epicId, projectPath, onFullScreenChange }: DesignDocViewerProps) {
   const [content, setContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
+
+  // Notify parent when fullscreen state changes
+  useEffect(() => {
+    onFullScreenChange?.(isFullScreen);
+  }, [isFullScreen, onFullScreenChange]);
 
   useEffect(() => {
     const loadDoc = async () => {
@@ -92,7 +99,7 @@ export function DesignDocViewer({ designDocPath, epicId, projectPath }: DesignDo
     <Card
       className={cn(
         "transition-all",
-        isFullScreen && "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] max-h-[80vh] z-50 overflow-auto overscroll-contain"
+        isFullScreen && "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] max-h-[80vh] z-50 overflow-auto overscroll-contain visible"
       )}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
