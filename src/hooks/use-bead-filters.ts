@@ -36,7 +36,7 @@ export interface BeadFilters {
   sortField: SortField;
   /** Sort direction */
   sortDirection: SortDirection;
-  /** Filter to items created today and not closed */
+  /** Filter to items updated (worked on) today */
   todayOnly: boolean;
 }
 
@@ -195,12 +195,11 @@ export function useBeadFilters(
         if (!filters.owners.includes(bead.owner)) return false;
       }
 
-      // Today filter (created today AND not closed)
+      // Today filter - items updated (worked on) today, regardless of status
       if (filters.todayOnly) {
         const today = new Date().toISOString().split("T")[0];
-        const createdToday = bead.created_at.startsWith(today);
-        const notClosed = bead.status !== "closed";
-        if (!(createdToday && notClosed)) return false;
+        const updatedToday = bead.updated_at.startsWith(today);
+        if (!updatedToday) return false;
       }
 
       return true;
