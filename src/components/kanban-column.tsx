@@ -25,38 +25,56 @@ export interface KanbanColumnProps {
 }
 
 /**
- * Get background color class for column based on status
+ * Get accent border class for column header based on status
  */
-function getColumnBackground(status: BeadStatus): string {
+function getColumnAccentBorder(status: BeadStatus): string {
   switch (status) {
     case "open":
-      return "bg-blue-50";
+      return "border-t-2 border-t-blue-500/60";
     case "in_progress":
-      return "bg-amber-50";
+      return "border-t-2 border-t-amber-500/60";
     case "inreview":
-      return "bg-purple-50";
+      return "border-t-2 border-t-purple-500/60";
     case "closed":
-      return "bg-green-50";
+      return "border-t-2 border-t-green-500/60";
     default:
-      return "bg-zinc-50";
+      return "border-t-2 border-t-zinc-500/60";
   }
 }
 
 /**
- * Get badge color class for count badge based on status
+ * Get header text color based on status
+ */
+function getHeaderTextColor(status: BeadStatus): string {
+  switch (status) {
+    case "open":
+      return "text-blue-400";
+    case "in_progress":
+      return "text-amber-400";
+    case "inreview":
+      return "text-purple-400";
+    case "closed":
+      return "text-green-400";
+    default:
+      return "text-zinc-400";
+  }
+}
+
+/**
+ * Get badge color class for count badge based on status (dark theme)
  */
 function getBadgeVariant(status: BeadStatus): string {
   switch (status) {
     case "open":
-      return "bg-blue-100 text-blue-700 hover:bg-blue-100";
+      return "bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/20";
     case "in_progress":
-      return "bg-amber-100 text-amber-700 hover:bg-amber-100";
+      return "bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500/20";
     case "inreview":
-      return "bg-purple-100 text-purple-700 hover:bg-purple-100";
+      return "bg-purple-500/20 text-purple-400 border-purple-500/30 hover:bg-purple-500/20";
     case "closed":
-      return "bg-green-100 text-green-700 hover:bg-green-100";
+      return "bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/20";
     default:
-      return "bg-zinc-100 text-zinc-700 hover:bg-zinc-100";
+      return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30 hover:bg-zinc-500/20";
   }
 }
 
@@ -87,13 +105,16 @@ export function KanbanColumn({
   return (
     <div
       className={cn(
-        "flex flex-col h-full min-h-0 rounded-lg border",
-        getColumnBackground(status)
+        "flex flex-col h-full min-h-0 rounded-lg",
+        "bg-zinc-900/30 border border-zinc-800/50"
       )}
     >
-      {/* Column Header - fixed height */}
-      <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 border-b bg-white/50">
-        <h2 className="font-semibold text-sm">{title}</h2>
+      {/* Column Header - fixed height with colored accent border */}
+      <div className={cn(
+        "flex-shrink-0 flex items-center justify-between px-4 py-3 border-b border-zinc-800/50",
+        getColumnAccentBorder(status)
+      )}>
+        <h2 className={cn("font-semibold text-sm", getHeaderTextColor(status))}>{title}</h2>
         <Badge
           variant="secondary"
           className={cn("text-xs px-2 py-0.5", getBadgeVariant(status))}
@@ -135,7 +156,7 @@ export function KanbanColumn({
             );
           })}
           {beads.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground text-sm">
+            <div className="text-center py-8 text-zinc-500 text-sm">
               No beads
             </div>
           )}
