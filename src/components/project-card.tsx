@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FolderKanban } from "lucide-react";
+import { StatusDonut } from "@/components/status-donut";
 import {
   RoiuiCard,
   RoiuiCardAction,
@@ -66,7 +66,7 @@ export function ProjectCard({
     >
       <RoiuiCardHeader>
         <RoiuiCardIcon>
-          <FolderKanban className="size-5" aria-hidden="true" />
+          <StatusDonut beadCounts={beadCounts} size={48} />
         </RoiuiCardIcon>
         <RoiuiCardTitle className="text-balance font-project-name">
           {formatProjectName(name)}
