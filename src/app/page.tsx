@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { ProjectCard } from "@/components/project-card";
 import { AddProjectDialog } from "@/components/add-project-dialog";
 import { useProjects } from "@/hooks/use-projects";
@@ -20,20 +19,7 @@ export default function ProjectsPage() {
     <div className="dark min-h-dvh bg-[#0a0a0a]">
       {/* Navigation Bar */}
       <nav className="sticky top-0 z-30 border-b border-zinc-800 bg-[#0a0a0a]/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-center gap-8 px-6 py-4">
-          {/* Logo - centered with settings */}
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/logo.svg"
-              alt="BeadsUI"
-              width={384}
-              height={256}
-              className="w-64 h-auto"
-              priority
-            />
-          </Link>
-
-          {/* Settings link - right next to logo */}
+        <div className="mx-auto flex max-w-[1200px] items-center justify-center px-6 py-4">
           <Link
             href="/settings"
             className="rounded-md px-3 py-2 text-sm font-medium text-zinc-400 transition-[background-color,color] duration-150 hover:bg-zinc-800/50 hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]"
