@@ -115,11 +115,9 @@ export function TagPicker({
             className
           )}
           onClick={(e) => {
-            // Prevent navigation from parent Link component
-            e.preventDefault();
+            // Only stop propagation to prevent Link navigation
+            // Do NOT call e.preventDefault() - let Radix handle the click
             e.stopPropagation();
-            // Manually toggle the popover since preventDefault blocks Radix's default handling
-            setIsOpen((prev) => !prev);
           }}
         >
           <Plus className="h-4 w-4 text-zinc-400" aria-hidden="true" />
