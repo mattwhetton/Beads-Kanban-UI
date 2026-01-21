@@ -15,23 +15,6 @@ export interface BeadCardProps {
 }
 
 /**
- * Get priority badge color classes based on priority level
- * Dark theme variant with semi-transparent backgrounds
- */
-function getPriorityColor(priority: number): string {
-  switch (priority) {
-    case 0:
-      return "bg-red-500/20 text-red-400 border border-red-500/30";
-    case 1:
-      return "bg-orange-500/20 text-orange-400 border border-orange-500/30";
-    case 2:
-      return "bg-zinc-500/20 text-zinc-400 border border-zinc-500/30";
-    default:
-      return "bg-zinc-600/20 text-zinc-500 border border-zinc-600/30";
-  }
-}
-
-/**
  * Get branch badge color based on ahead/behind status
  * Dark theme variant with semi-transparent backgrounds
  * Green: ahead only (has new commits, up to date with main)
@@ -163,12 +146,9 @@ export function BeadCard({ bead, ticketNumber, branchStatus, isSelected = false,
               </Badge>
             )}
             <Badge
-              className={cn(
-                "text-[10px] px-1.5 py-0",
-                getPriorityColor(bead.priority)
-              )}
+              className="text-[10px] px-1.5 py-0 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
             >
-              P{bead.priority}
+              Task
             </Badge>
           </div>
         </div>

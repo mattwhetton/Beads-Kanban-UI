@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import type { Bead, Epic, EpicProgress } from "@/types";
-import { ChevronDown, ChevronRight, FileText, Layers, MessageSquare } from "lucide-react";
+import { ChevronDown, ChevronRight, Layers, MessageSquare } from "lucide-react";
 import { SubtaskList } from "@/components/subtask-list";
 import { DependencyBadge } from "@/components/dependency-badge";
 import { DesignDocPreview } from "@/components/design-doc-preview";
@@ -28,22 +28,6 @@ export interface EpicCardProps {
   onNavigateToDependency?: (beadId: string) => void;
   /** Project root path for fetching design docs */
   projectPath?: string;
-}
-
-/**
- * Get priority badge color classes based on priority level (dark theme)
- */
-function getPriorityColor(priority: number): string {
-  switch (priority) {
-    case 0:
-      return "bg-red-500/20 text-red-400 border-red-500/30";
-    case 1:
-      return "bg-orange-500/20 text-orange-400 border-orange-500/30";
-    case 2:
-      return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30";
-    default:
-      return "bg-zinc-600/20 text-zinc-500 border-zinc-600/30";
-  }
 }
 
 /**
@@ -119,6 +103,7 @@ export function EpicCard({
       data-bead-id={epic.id}
       role="button"
       tabIndex={0}
+      aria-label={`Select epic: ${epic.title}`}
       className={cn(
         "rounded-lg cursor-pointer p-4",
         "bg-zinc-900/70 backdrop-blur-md",
@@ -139,7 +124,7 @@ export function EpicCard({
       }}
     >
       <div className="space-y-3">
-        {/* Header: Ticket # + Epic Icon + ID + Priority + Design Doc + Dependencies */}
+        {/* Header: Ticket # + Epic Icon + ID + Dependencies */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Layers className="h-4 w-4 text-purple-400" aria-hidden="true" />
@@ -152,29 +137,11 @@ export function EpicCard({
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            {hasDesignDoc && (
-              <Badge
-                variant="outline"
-                className="text-[10px] px-1.5 py-0 border-purple-500/30 text-purple-400 bg-purple-500/20"
-              >
-                <FileText className="h-3 w-3 mr-0.5" aria-hidden="true" />
-                DESIGN
-              </Badge>
-            )}
             <DependencyBadge
               deps={epic.deps}
               blockers={epic.blockers}
               onNavigate={onNavigateToDependency}
             />
-            <Badge
-              variant="outline"
-              className={cn(
-                "text-[10px] px-1.5 py-0",
-                getPriorityColor(epic.priority)
-              )}
-            >
-              P{epic.priority}
-            </Badge>
           </div>
         </div>
 
