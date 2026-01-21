@@ -6,13 +6,6 @@ import { getTags, createTag, deleteTag, type Tag } from "@/lib/db";
 import { ColorPicker } from "@/components/color-picker";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 export default function SettingsPage() {
   const [tags, setTags] = useState<Tag[]>([]);
@@ -208,59 +201,20 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        {/* Theme Section */}
-        <section className="mb-8">
-          <h2 className="mb-4 text-lg font-medium text-zinc-100">Theme</h2>
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-zinc-100">Appearance</p>
-                <p className="text-sm text-zinc-400">Choose your preferred theme</p>
-              </div>
-              <Select defaultValue="light">
-                <SelectTrigger className="w-[140px] border-zinc-700 bg-zinc-800 text-zinc-100">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="border-zinc-700 bg-zinc-800">
-                  <SelectItem value="light" className="text-zinc-100 focus:bg-zinc-700 focus:text-zinc-100">
-                    Light
-                  </SelectItem>
-                  <SelectItem value="dark" disabled className="text-zinc-400">
-                    Dark (coming soon)
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </section>
-
         {/* Data Section */}
         <section className="mb-8">
           <h2 className="mb-4 text-lg font-medium text-zinc-100">Data</h2>
           <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-zinc-100">Export Settings</p>
-                  <p className="text-sm text-zinc-400">Download your settings as JSON</p>
-                </div>
-                <button className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]">
-                  Export
-                </button>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-red-400">Clear Local Database</p>
+                <p className="text-sm text-zinc-400">
+                  Remove all projects and tags from local storage
+                </p>
               </div>
-              <div className="border-t border-zinc-800 pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-red-400">Clear Local Database</p>
-                    <p className="text-sm text-zinc-400">
-                      Remove all projects and tags from local storage
-                    </p>
-                  </div>
-                  <button className="rounded-md border border-red-800/50 bg-red-900/30 px-3 py-1.5 text-sm text-red-400 hover:bg-red-900/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]">
-                    Clear Data
-                  </button>
-                </div>
-              </div>
+              <button className="rounded-md border border-red-800/50 bg-red-900/30 px-3 py-1.5 text-sm text-red-400 hover:bg-red-900/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]">
+                Clear Data
+              </button>
             </div>
           </div>
         </section>
