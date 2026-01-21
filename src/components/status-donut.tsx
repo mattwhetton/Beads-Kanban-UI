@@ -1,13 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
-import { Pie, PieChart } from "recharts";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart";
+import { useMemo, useState } from "react";
 
 interface BeadCounts {
   open: number;
@@ -30,43 +23,57 @@ const STATUS_COLORS = {
   closed: "#22c55e",      // green-500
 };
 
-const STATUS_LABELS = {
-  open: "Open",
-  in_progress: "In Progress",
-  inreview: "In Review",
-  closed: "Closed",
-};
+// Custom tooltip showing all statuses
+function StatusTooltip({ beadCounts, total }: { beadCounts: BeadCounts; total: number }) {
+  return (
+    <div className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 shadow-lg">
+      <div className="mb-1.5 text-xs font-medium text-zinc-300">
+        {total} task{total !== 1 ? "s" : ""}
+      </div>
+      <div className="space-y-1">
+        {beadCounts.open > 0 && (
+          <div className="flex items-center gap-2 text-xs">
+            <div className="h-2 w-2 rounded-sm" style={{ backgroundColor: STATUS_COLORS.open }} />
+            <span className="text-zinc-400">Open</span>
+            <span className="ml-auto font-mono text-zinc-100">{beadCounts.open}</span>
+          </div>
+        )}
+        {beadCounts.in_progress > 0 && (
+          <div className="flex items-center gap-2 text-xs">
+            <div className="h-2 w-2 rounded-sm" style={{ backgroundColor: STATUS_COLORS.in_progress }} />
+            <span className="text-zinc-400">In Progress</span>
+            <span className="ml-auto font-mono text-zinc-100">{beadCounts.in_progress}</span>
+          </div>
+        )}
+        {beadCounts.inreview > 0 && (
+          <div className="flex items-center gap-2 text-xs">
+            <div className="h-2 w-2 rounded-sm" style={{ backgroundColor: STATUS_COLORS.inreview }} />
+            <span className="text-zinc-400">In Review</span>
+            <span className="ml-auto font-mono text-zinc-100">{beadCounts.inreview}</span>
+          </div>
+        )}
+        {beadCounts.closed > 0 && (
+          <div className="flex items-center gap-2 text-xs">
+            <div className="h-2 w-2 rounded-sm" style={{ backgroundColor: STATUS_COLORS.closed }} />
+            <span className="text-zinc-400">Closed</span>
+            <span className="ml-auto font-mono text-zinc-100">{beadCounts.closed}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
-const chartConfig = {
-  count: {
-    label: "Tasks",
-  },
-  open: {
-    label: "Open",
-    color: STATUS_COLORS.open,
-  },
-  in_progress: {
-    label: "In Progress",
-    color: STATUS_COLORS.in_progress,
-  },
-  inreview: {
-    label: "In Review",
-    color: STATUS_COLORS.inreview,
-  },
-  closed: {
-    label: "Closed",
-    color: STATUS_COLORS.closed,
-  },
-} satisfies ChartConfig;
+export function StatusDonut({ beadCounts, size = 40, className }: StatusDonutProps) {
+  const [isHovered, setIsHovered] = useState(false);
 
-export function StatusDonut({ beadCounts, size = 48, className }: StatusDonutProps) {
   const chartData = useMemo(() => {
     return [
       { status: "open", count: beadCounts.open, fill: STATUS_COLORS.open },
       { status: "in_progress", count: beadCounts.in_progress, fill: STATUS_COLORS.in_progress },
       { status: "inreview", count: beadCounts.inreview, fill: STATUS_COLORS.inreview },
       { status: "closed", count: beadCounts.closed, fill: STATUS_COLORS.closed },
-    ].filter((item) => item.count > 0); // Only show statuses with counts
+    ].filter((item) => item.count > 0);
   }, [beadCounts]);
 
   const total = useMemo(() => {
@@ -89,48 +96,83 @@ export function StatusDonut({ beadCounts, size = 48, className }: StatusDonutPro
     );
   }
 
-  const innerRadius = size * 0.3;
-  const outerRadius = size * 0.45;
+  const innerRadius = size * 0.32;
+  const outerRadius = size * 0.48;
+  // Only add padding when there are multiple segments
+  const paddingAngle = chartData.length > 1 ? 3 : 0;
 
   return (
-    <ChartContainer
-      config={chartConfig}
-      className={className}
+    <div
+      className={`relative ${className || ""}`}
       style={{ width: size, height: size }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <PieChart>
-        <ChartTooltip
-          cursor={false}
-          content={
-            <ChartTooltipContent
-              hideLabel
-              formatter={(value, name) => (
-                <div className="flex items-center gap-2">
-                  <div
-                    className="h-2.5 w-2.5 shrink-0 rounded-sm"
-                    style={{ backgroundColor: STATUS_COLORS[name as keyof typeof STATUS_COLORS] }}
-                  />
-                  <span className="text-zinc-400">
-                    {STATUS_LABELS[name as keyof typeof STATUS_LABELS]}
-                  </span>
-                  <span className="ml-auto font-mono font-medium text-zinc-100">
-                    {value}
-                  </span>
-                </div>
-              )}
-            />
-          }
-        />
-        <Pie
-          data={chartData}
-          dataKey="count"
-          nameKey="status"
-          innerRadius={innerRadius}
-          outerRadius={outerRadius}
-          strokeWidth={0}
-          paddingAngle={2}
-        />
-      </PieChart>
-    </ChartContainer>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <g transform={`translate(${size / 2}, ${size / 2})`}>
+          {/* Render pie segments */}
+          {chartData.map((entry, index) => {
+            // Calculate angles for each segment
+            const startAngle = chartData
+              .slice(0, index)
+              .reduce((acc, d) => acc + (d.count / total) * 360, 0);
+            const endAngle = startAngle + (entry.count / total) * 360;
+
+            // Add small padding between segments (only if multiple segments)
+            const adjustedStart = chartData.length > 1
+              ? startAngle + paddingAngle / 2
+              : startAngle;
+            const adjustedEnd = chartData.length > 1
+              ? endAngle - paddingAngle / 2
+              : endAngle;
+
+            // Convert to radians (SVG uses radians, start from top)
+            const startRad = ((adjustedStart - 90) * Math.PI) / 180;
+            const endRad = ((adjustedEnd - 90) * Math.PI) / 180;
+
+            // Calculate arc path
+            const x1 = Math.cos(startRad) * outerRadius;
+            const y1 = Math.sin(startRad) * outerRadius;
+            const x2 = Math.cos(endRad) * outerRadius;
+            const y2 = Math.sin(endRad) * outerRadius;
+            const x3 = Math.cos(endRad) * innerRadius;
+            const y3 = Math.sin(endRad) * innerRadius;
+            const x4 = Math.cos(startRad) * innerRadius;
+            const y4 = Math.sin(startRad) * innerRadius;
+
+            const largeArcFlag = adjustedEnd - adjustedStart > 180 ? 1 : 0;
+
+            const d = [
+              `M ${x1} ${y1}`,
+              `A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+              `L ${x3} ${y3}`,
+              `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${x4} ${y4}`,
+              "Z",
+            ].join(" ");
+
+            return (
+              <path
+                key={entry.status}
+                d={d}
+                fill={entry.fill}
+              />
+            );
+          })}
+          {/* Invisible circle covering entire donut area for hover detection */}
+          <circle
+            r={outerRadius}
+            fill="transparent"
+            style={{ cursor: "default" }}
+          />
+        </g>
+      </svg>
+
+      {/* Tooltip - shown on hover anywhere in the donut area */}
+      {isHovered && (
+        <div className="absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 whitespace-nowrap">
+          <StatusTooltip beadCounts={beadCounts} total={total} />
+        </div>
+      )}
+    </div>
   );
 }
