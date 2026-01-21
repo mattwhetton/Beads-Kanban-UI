@@ -161,10 +161,10 @@ export function DesignDocViewer({ designDocPath, epicId, projectPath, onFullScre
 
       <MorphingDialogContainer>
         <MorphingDialogContent
-          className="relative bg-background border rounded-lg shadow-lg w-[60vw] max-h-[80vh] overflow-hidden"
+          className="relative bg-zinc-900 border-zinc-800 rounded-lg shadow-lg w-[60vw] max-h-[80vh] overflow-hidden"
         >
           {/* Fixed header outside scroll area */}
-          <div className="flex items-center gap-2 px-6 pt-6 pb-3 border-b">
+          <div className="flex items-center gap-2 px-6 pt-6 pb-3 border-b border-zinc-800">
             <FileText className="size-4 text-muted-foreground" aria-hidden="true" />
             <MorphingDialogTitle>
               <h2 className="text-sm font-semibold">Design Document</h2>
