@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Bead, BeadStatus } from "@/types";
-import { ArrowLeft, GitBranch, Calendar, ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowLeft, GitBranch, Calendar } from "lucide-react";
 import { DesignDocViewer } from "@/components/design-doc-viewer";
 import { useState } from "react";
 
@@ -118,7 +118,6 @@ export function BeadDetail({
   projectPath,
 }: BeadDetailProps) {
   const branchName = `bd-${formatBeadId(bead.id)}`;
-  const [isDesignDocExpanded, setIsDesignDocExpanded] = useState(false);
   const [isDesignDocFullScreen, setIsDesignDocFullScreen] = useState(false);
   const hasDesignDoc = !!bead.design_doc;
 
@@ -202,7 +201,7 @@ export function BeadDetail({
             <div className="space-y-1">
               <span className="text-muted-foreground text-xs">Branch</span>
               <div className="flex items-center gap-1.5">
-                <GitBranch className="h-3.5 w-3.5 text-muted-foreground" />
+                <GitBranch className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
                 <span className="font-mono text-xs">{branchName}</span>
               </div>
             </div>
@@ -211,7 +210,7 @@ export function BeadDetail({
             <div className="space-y-1">
               <span className="text-muted-foreground text-xs">Created</span>
               <div className="flex items-center gap-1.5">
-                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                <Calendar className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
                 <span className="text-xs">{formatDate(bead.created_at)}</span>
               </div>
             </div>
@@ -230,29 +229,15 @@ export function BeadDetail({
         )}
 
         {/* Design Document */}
-        {hasDesignDoc && (
+        {hasDesignDoc && projectPath && (
           <div className="mt-6">
-            <button
-              onClick={() => setIsDesignDocExpanded(!isDesignDocExpanded)}
-              aria-expanded={isDesignDocExpanded}
-              aria-label={`${isDesignDocExpanded ? 'Collapse' : 'Expand'} design document`}
-              className="flex items-center gap-1.5 text-sm font-semibold mb-3 hover:underline transition-[color,text-decoration-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              {isDesignDocExpanded ? (
-                <ChevronDown className="size-4" aria-hidden="true" />
-              ) : (
-                <ChevronRight className="size-4" aria-hidden="true" />
-              )}
-              Design Document
-            </button>
-            {isDesignDocExpanded && projectPath && (
-              <DesignDocViewer
-                designDocPath={bead.design_doc!}
-                epicId={formatBeadId(bead.id)}
-                projectPath={projectPath}
-                onFullScreenChange={setIsDesignDocFullScreen}
-              />
-            )}
+            <h3 className="text-sm font-semibold mb-3">Design Document</h3>
+            <DesignDocViewer
+              designDocPath={bead.design_doc!}
+              epicId={formatBeadId(bead.id)}
+              projectPath={projectPath}
+              onFullScreenChange={setIsDesignDocFullScreen}
+            />
           </div>
         )}
 

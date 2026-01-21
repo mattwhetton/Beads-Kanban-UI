@@ -92,7 +92,7 @@ export function DesignDocViewer({ designDocPath, epicId, projectPath, onFullScre
         <CardContent className="p-6">
           <div className="flex items-center justify-center gap-2 text-muted-foreground">
             <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-            <span className="text-sm">Loading design document...</span>
+            <span className="text-sm">Loading design document…</span>
           </div>
         </CardContent>
       </Card>
@@ -157,9 +157,9 @@ export function DesignDocViewer({ designDocPath, epicId, projectPath, onFullScre
 
       <MorphingDialogContainer>
         <MorphingDialogContent
-          className="relative bg-background border rounded-lg shadow-lg w-[60vw] max-h-[80vh] overflow-hidden"
+          className="relative bg-background border rounded-lg shadow-lg w-[60vw] max-h-[80vh] flex flex-col"
         >
-          <div className="p-6 overflow-auto max-h-[80vh]">
+          <div className="p-6 overflow-y-auto flex-1 min-h-0">
             <div className="flex items-center gap-2 mb-4">
               <FileText className="size-4 text-muted-foreground" aria-hidden="true" />
               <MorphingDialogTitle>
