@@ -13,7 +13,8 @@ import { cn } from "@/lib/utils";
 import type { Bead, BeadStatus } from "@/types";
 import { ArrowLeft, GitBranch, Calendar } from "lucide-react";
 import { DesignDocViewer } from "@/components/design-doc-viewer";
-import { useState, useEffect, useCallback } from "react";
+import { SubtaskList } from "@/components/subtask-list";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 export interface BeadDetailProps {
   bead: Bead;
@@ -23,6 +24,10 @@ export interface BeadDetailProps {
   children?: React.ReactNode;
   /** Project root path (absolute) */
   projectPath?: string;
+  /** All beads for resolving child task IDs */
+  allBeads?: Bead[];
+  /** Callback when clicking a child task */
+  onChildClick?: (child: Bead) => void;
 }
 
 /**
@@ -120,10 +125,23 @@ export function BeadDetail({
   onOpenChange,
   children,
   projectPath,
+  allBeads,
+  onChildClick,
 }: BeadDetailProps) {
   const branchName = `bd-${formatBeadId(bead.id)}`;
   const [isDesignDocFullScreen, setIsDesignDocFullScreen] = useState(false);
   const hasDesignDoc = !!bead.design_doc;
+
+  // Check if this is an epic with children
+  const isEpic = bead.children && bead.children.length > 0;
+
+  // Resolve children from IDs
+  const childTasks = useMemo(() => {
+    if (!isEpic || !allBeads) return [];
+    return (bead.children || [])
+      .map(childId => allBeads.find(b => b.id === childId))
+      .filter((b): b is Bead => b !== undefined);
+  }, [isEpic, bead.children, allBeads]);
 
   // Handle fullscreen state changes from DesignDocViewer
   const handleFullScreenChange = useCallback((isFullScreen: boolean) => {
@@ -245,6 +263,23 @@ export function BeadDetail({
               <div className="h-px bg-zinc-800 mb-3" />
               <div className="text-sm text-zinc-400 leading-relaxed whitespace-pre-wrap">
                 {bead.description}
+              </div>
+            </div>
+          )}
+
+          {/* Subtasks (for epics) */}
+          {isEpic && onChildClick && (
+            <div className="mt-6">
+              <h3 className="text-sm font-semibold mb-2 text-zinc-200">
+                Subtasks ({childTasks.length})
+              </h3>
+              <div className="h-px bg-zinc-800 mb-3" />
+              <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
+                <SubtaskList
+                  childTasks={childTasks}
+                  onChildClick={onChildClick}
+                  isExpanded={true}
+                />
               </div>
             </div>
           )}

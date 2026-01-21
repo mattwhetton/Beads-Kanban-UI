@@ -333,6 +333,8 @@ export default function KanbanBoard() {
             }
           }}
           projectPath={project?.path ?? ""}
+          allBeads={beads}
+          onChildClick={handleChildClick}
         >
           <CommentList
             comments={detailBead.comments}
