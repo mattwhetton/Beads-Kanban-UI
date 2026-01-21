@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,6 +59,59 @@ const proseStyles = cn(
 );
 
 /**
+ * Custom hook to enable mouse wheel scrolling on an element when
+ * a parent scroll lock (like Radix Dialog) is intercepting wheel events.
+ *
+ * This is needed because when the MorphingDialog opens on top of the Sheet,
+ * the Sheet's scroll lock from @radix-ui/react-dialog intercepts all wheel
+ * events. This hook manually handles scrolling and stops propagation.
+ *
+ * Returns a callback ref that should be passed to the scrollable element.
+ */
+function useWheelScrollRef() {
+  const elementRef = useRef<HTMLDivElement | null>(null);
+  const handlerRef = useRef<((e: WheelEvent) => void) | null>(null);
+
+  const callbackRef = useCallback((element: HTMLDivElement | null) => {
+    // Clean up previous listener if any
+    if (elementRef.current && handlerRef.current) {
+      elementRef.current.removeEventListener('wheel', handlerRef.current);
+    }
+
+    elementRef.current = element;
+
+    if (element) {
+      const handleWheel = (e: WheelEvent) => {
+        const el = e.currentTarget as HTMLElement;
+        const canScrollUp = el.scrollTop > 0;
+        const canScrollDown = el.scrollTop < el.scrollHeight - el.clientHeight;
+
+        // Only intercept if we can scroll in the direction of the wheel
+        if ((e.deltaY < 0 && canScrollUp) || (e.deltaY > 0 && canScrollDown)) {
+          e.preventDefault();
+          e.stopPropagation();
+          el.scrollTop += e.deltaY;
+        }
+      };
+
+      handlerRef.current = handleWheel;
+      element.addEventListener('wheel', handleWheel, { passive: false });
+    }
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (elementRef.current && handlerRef.current) {
+        elementRef.current.removeEventListener('wheel', handlerRef.current);
+      }
+    };
+  }, []);
+
+  return callbackRef;
+}
+
+/**
  * Markdown renderer for design docs with syntax highlighting
  * Uses MorphingDialog for smooth expand/collapse animation
  */
@@ -66,6 +119,10 @@ export function DesignDocViewer({ designDocPath, epicId, projectPath, onFullScre
   const [content, setContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Enable wheel scrolling that bypasses Radix's scroll lock
+  // Uses callback ref to attach listener when element mounts
+  const scrollableRef = useWheelScrollRef();
 
   const handleOpenChange = useCallback((isOpen: boolean) => {
     onFullScreenChange?.(isOpen);
@@ -162,7 +219,7 @@ export function DesignDocViewer({ designDocPath, epicId, projectPath, onFullScre
         <MorphingDialogContent
           className="relative bg-background border rounded-lg shadow-lg w-[60vw] max-h-[80vh] flex flex-col overflow-hidden"
         >
-          <div className="p-6 overflow-y-auto flex-1 min-h-0 overscroll-contain">
+          <div ref={scrollableRef} className="p-6 overflow-y-auto flex-1 min-h-0 overscroll-contain">
             <div className="flex items-center gap-2 mb-4">
               <FileText className="size-4 text-muted-foreground" aria-hidden="true" />
               <MorphingDialogTitle>
