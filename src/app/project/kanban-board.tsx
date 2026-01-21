@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -65,10 +65,33 @@ export default function KanbanBoard() {
     filters,
     setFilters,
     filteredBeads,
+    clearFilters,
+    hasActiveFilters,
+    availableOwners,
   } = useBeadFilters(beads, ticketNumbers, 300);
 
   // Issue type filter state (epics vs tasks)
   const [typeFilter, setTypeFilter] = useState<IssueTypeFilter>("all");
+
+  /**
+   * Toggle a status in the filter
+   */
+  const toggleStatus = useCallback((status: BeadStatus) => {
+    const newStatuses = filters.statuses.includes(status)
+      ? filters.statuses.filter(s => s !== status)
+      : [...filters.statuses, status];
+    setFilters({ statuses: newStatuses });
+  }, [filters.statuses, setFilters]);
+
+  /**
+   * Toggle an owner in the filter
+   */
+  const toggleOwner = useCallback((owner: string) => {
+    const newOwners = filters.owners.includes(owner)
+      ? filters.owners.filter(o => o !== owner)
+      : [...filters.owners, owner];
+    setFilters({ owners: newOwners });
+  }, [filters.owners, setFilters]);
 
   // Fetch branch statuses for all beads
   const beadIds = useMemo(() => beads.map((b) => b.id), [beads]);
@@ -240,13 +263,28 @@ export default function KanbanBoard() {
       {/* Quick Filter Bar */}
       <div className="px-4 py-2 border-b border-zinc-800">
         <QuickFilterBar
+          // Search
+          search={filters.search}
+          onSearchChange={(value) => setFilters({ search: value })}
+          searchInputRef={searchInputRef}
+          // Type filter
           typeFilter={typeFilter}
           onTypeFilterChange={setTypeFilter}
+          // Today
           todayOnly={filters.todayOnly}
           onTodayOnlyChange={(value) => setFilters({ todayOnly: value })}
+          // Sort
           sortField={filters.sortField}
           sortDirection={filters.sortDirection}
           onSortChange={(field, direction) => setFilters({ sortField: field, sortDirection: direction })}
+          // Status/Owner filters
+          statuses={filters.statuses}
+          onStatusToggle={toggleStatus}
+          owners={filters.owners}
+          onOwnerToggle={toggleOwner}
+          availableOwners={availableOwners}
+          onClearFilters={clearFilters}
+          hasActiveFilters={hasActiveFilters}
         />
       </div>
 
