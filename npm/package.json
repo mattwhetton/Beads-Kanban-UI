@@ -1,5 +1,5 @@
 {
-  "name": "beads-ui",
+  "name": "beads-kanban-ui",
   "version": "0.1.0",
   "description": "Visual Kanban board for the Beads CLI task tracker",
   "bin": {
