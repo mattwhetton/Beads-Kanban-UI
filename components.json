@@ -19,6 +19,9 @@
     "hooks": "@/hooks"
   },
   "registries": {
-    "@motion-primitives": "https://motion-primitives.com/c/{name}.json"
+    "@motion-primitives": "https://motion-primitives.com/c/{name}.json",
+    "@reui": "https://reui.io/r/{name}.json",
+    "@roiui": "https://roiui.com/r/{name}.json",
+    "@react-bits": "https://reactbits.dev/r/{name}.json"
   }
 }

@@ -17,6 +17,7 @@ import {
   Variant,
 } from 'motion/react';
 import { createPortal } from 'react-dom';
+import { RemoveScroll } from 'react-remove-scroll';
 import { cn } from '@/lib/utils';
 import { XIcon } from 'lucide-react';
 import useClickOutside from '@/hooks/useClickOutside';
@@ -25,7 +26,10 @@ export type MorphingDialogContextType = {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   uniqueId: string;
-  triggerRef: React.RefObject<HTMLButtonElement | null>;
+  triggerRef: React.RefObject<HTMLButtonElement>;
+  contentRef: React.RefObject<HTMLDivElement>;
+  contentElement: HTMLDivElement | null;
+  setContentElement: React.Dispatch<React.SetStateAction<HTMLDivElement | null>>;
 };
 
 const MorphingDialogContext =
@@ -55,8 +59,10 @@ function MorphingDialogProvider({
   defaultOpen = false,
 }: MorphingDialogProviderProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [contentElement, setContentElement] = useState<HTMLDivElement | null>(null);
   const uniqueId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null!);
+  const contentRef = useRef<HTMLDivElement>(null!);
 
   // Call onOpenChange callback when isOpen changes (after render)
   useEffect(() => {
@@ -69,8 +75,11 @@ function MorphingDialogProvider({
       setIsOpen,
       uniqueId,
       triggerRef,
+      contentRef,
+      contentElement,
+      setContentElement,
     }),
-    [isOpen]
+    [isOpen, contentElement]
   );
 
   return (
@@ -153,12 +162,23 @@ function MorphingDialogContent({
   className,
   style,
 }: MorphingDialogContentProps) {
-  const { setIsOpen, isOpen, uniqueId, triggerRef } = useMorphingDialog();
-  const containerRef = useRef<HTMLDivElement>(null!);
+  const { setIsOpen, isOpen, uniqueId, triggerRef, contentRef, setContentElement } = useMorphingDialog();
+  // Use contentRef from context so RemoveScroll can allow scrolling inside this element
+  const containerRef = contentRef;
   const [firstFocusableElement, setFirstFocusableElement] =
     useState<HTMLElement | null>(null);
   const [lastFocusableElement, setLastFocusableElement] =
     useState<HTMLElement | null>(null);
+
+  // Register the content element for RemoveScroll shards
+  useEffect(() => {
+    if (containerRef.current) {
+      setContentElement(containerRef.current);
+    }
+    return () => {
+      setContentElement(null);
+    };
+  }, [setContentElement]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -191,7 +211,7 @@ function MorphingDialogContent({
 
   useEffect(() => {
     if (isOpen) {
-      document.body.classList.add('overflow-hidden');
+      // Note: overflow-hidden is now handled by RemoveScroll in MorphingDialogContainer
       const focusableElements = containerRef.current?.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
@@ -203,7 +223,6 @@ function MorphingDialogContent({
         (focusableElements[0] as HTMLElement).focus();
       }
     } else {
-      document.body.classList.remove('overflow-hidden');
       triggerRef.current?.focus();
     }
   }, [isOpen, triggerRef]);
@@ -237,7 +256,7 @@ export type MorphingDialogContainerProps = {
 };
 
 function MorphingDialogContainer({ children }: MorphingDialogContainerProps) {
-  const { isOpen, uniqueId } = useMorphingDialog();
+  const { isOpen, uniqueId, contentElement } = useMorphingDialog();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -247,21 +266,26 @@ function MorphingDialogContainer({ children }: MorphingDialogContainerProps) {
 
   if (!mounted) return null;
 
+  // Build shards array - only include contentElement if it's available
+  const shards = contentElement ? [contentElement] : [];
+
   return createPortal(
     <AnimatePresence initial={false} mode='sync'>
       {isOpen && (
-        <>
-          <motion.div
-            key={`backdrop-${uniqueId}`}
-            className='fixed inset-0 z-[60] h-full w-full bg-black/20 backdrop-blur-xs'
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          />
-          <div className='fixed inset-0 z-[60] flex items-center justify-center'>
-            {children}
-          </div>
-        </>
+        <RemoveScroll shards={shards} noIsolation>
+          <>
+            <motion.div
+              key={`backdrop-${uniqueId}`}
+              className='fixed inset-0 z-[60] h-full w-full bg-black/20 backdrop-blur-xs'
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+            <div className='fixed inset-0 z-[60] flex items-center justify-center'>
+              {children}
+            </div>
+          </>
+        </RemoveScroll>
       )}
     </AnimatePresence>,
     document.body
