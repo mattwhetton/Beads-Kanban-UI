@@ -92,7 +92,7 @@ export function DesignDocViewer({ designDocPath, epicId, projectPath }: DesignDo
     <Card
       className={cn(
         "transition-all",
-        isFullScreen && "fixed inset-4 z-50 overflow-auto overscroll-contain"
+        isFullScreen && "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] max-h-[80vh] z-50 overflow-auto overscroll-contain"
       )}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
@@ -121,7 +121,7 @@ export function DesignDocViewer({ designDocPath, epicId, projectPath }: DesignDo
         "prose-pre:bg-zinc-900 prose-pre:text-zinc-100",
         "prose-code:text-sm prose-code:bg-zinc-100 dark:prose-code:bg-zinc-800",
         "prose-code:px-1 prose-code:py-0.5 prose-code:rounded",
-        isFullScreen ? "p-8 max-h-[calc(100vh-8rem)] overflow-auto" : "p-6"
+        isFullScreen ? "p-6 max-h-[calc(80vh-5rem)] overflow-auto" : "p-6"
       )}>
         <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
           {content}
