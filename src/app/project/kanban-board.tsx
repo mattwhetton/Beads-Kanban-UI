@@ -342,7 +342,13 @@ export default function KanbanBoard() {
             projectPath={project?.path ?? ""}
             onCommentAdded={refreshBeads}
           />
-          <ActivityTimeline bead={detailBead} comments={detailBead.comments} />
+          <ActivityTimeline
+            bead={detailBead}
+            comments={detailBead.comments}
+            childBeads={(detailBead.children || [])
+              .map(id => beads.find(b => b.id === id))
+              .filter((b): b is Bead => !!b)}
+          />
         </BeadDetail>
       )}
     </div>

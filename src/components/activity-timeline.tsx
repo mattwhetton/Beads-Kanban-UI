@@ -6,12 +6,13 @@ import type { Bead, Comment } from "@/types";
 export interface ActivityTimelineProps {
   bead: Bead;
   comments: Comment[];
+  childBeads?: Bead[];
 }
 
 /**
  * Timeline event types
  */
-type TimelineEventType = "created" | "status_change" | "comment" | "branch";
+type TimelineEventType = "created" | "status_change" | "comment" | "branch" | "child_created" | "child_status_change";
 
 interface TimelineEvent {
   id: string;
@@ -35,9 +36,17 @@ function formatTimestamp(date: Date): string {
 }
 
 /**
+ * Truncate a string to maxLength characters with ellipsis
+ */
+function truncateTitle(title: string, maxLength: number = 30): string {
+  if (title.length <= maxLength) return title;
+  return title.slice(0, maxLength - 1) + "\u2026";
+}
+
+/**
  * Build timeline events from bead and comments
  */
-function buildTimelineEvents(bead: Bead, comments: Comment[]): TimelineEvent[] {
+function buildTimelineEvents(bead: Bead, comments: Comment[], childBeads: Bead[] = []): TimelineEvent[] {
   const events: TimelineEvent[] = [];
 
   // Created event
@@ -70,6 +79,31 @@ function buildTimelineEvents(bead: Bead, comments: Comment[]): TimelineEvent[] {
     });
   });
 
+  // Child task events
+  childBeads.forEach((child) => {
+    const childCreatedAt = new Date(child.created_at);
+    const childUpdatedAt = new Date(child.updated_at);
+    const truncatedTitle = truncateTitle(child.title);
+
+    // Child created event
+    events.push({
+      id: `child-created-${child.id}`,
+      type: "child_created",
+      description: `Task created: ${truncatedTitle}`,
+      timestamp: childCreatedAt,
+    });
+
+    // Child status change event (if updated_at differs from created_at)
+    if (childUpdatedAt.getTime() !== childCreatedAt.getTime()) {
+      events.push({
+        id: `child-status-${child.id}`,
+        type: "child_status_change",
+        description: `Task \u2192 ${child.status}: ${truncatedTitle}`,
+        timestamp: childUpdatedAt,
+      });
+    }
+  });
+
   // Sort chronologically (oldest first)
   events.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
@@ -80,8 +114,8 @@ function buildTimelineEvents(bead: Bead, comments: Comment[]): TimelineEvent[] {
  * Activity Timeline component
  * Displays a vertical timeline of bead activity events
  */
-export function ActivityTimeline({ bead, comments }: ActivityTimelineProps) {
-  const events = buildTimelineEvents(bead, comments);
+export function ActivityTimeline({ bead, comments, childBeads = [] }: ActivityTimelineProps) {
+  const events = buildTimelineEvents(bead, comments, childBeads);
 
   if (events.length === 0) {
     return (
@@ -114,7 +148,9 @@ export function ActivityTimeline({ bead, comments }: ActivityTimelineProps) {
                   event.type === "created" && "border-green-500",
                   event.type === "status_change" && "border-blue-500",
                   event.type === "comment" && "border-zinc-400",
-                  event.type === "branch" && "border-purple-500"
+                  event.type === "branch" && "border-purple-500",
+                  event.type === "child_created" && "border-cyan-500",
+                  event.type === "child_status_change" && "border-cyan-400"
                 )}
               />
 
