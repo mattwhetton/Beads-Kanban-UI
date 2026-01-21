@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { StatusDonut } from "@/components/status-donut";
 import {
@@ -12,7 +13,17 @@ import {
   RoiuiCardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { TagPicker } from "@/components/tag-picker";
+import { useToast } from "@/hooks/use-toast";
+import * as api from "@/lib/api";
+import { MoreVertical, Code, FolderOpen, Loader2 } from "lucide-react";
 import type { Tag } from "@/lib/db";
 import type { BeadCounts } from "@/types";
 
@@ -44,7 +55,33 @@ export function ProjectCard({
   onTagsChange,
 }: ProjectCardProps) {
   const router = useRouter();
+  const [isOpening, setIsOpening] = useState<string | null>(null);
+  const { toast } = useToast();
   const totalBeads = beadCounts.open + beadCounts.in_progress + beadCounts.inreview + beadCounts.closed;
+
+  const handleOpenExternal = async (target: 'vscode' | 'cursor' | 'finder', e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsOpening(target);
+
+    try {
+      await api.fs.openExternal(path, target);
+      toast({
+        title: "Opening project",
+        description: target === 'finder'
+          ? "Opening in Finder..."
+          : `Opening in ${target === 'vscode' ? 'VS Code' : 'Cursor'}...`,
+      });
+    } catch (err) {
+      console.error("Error opening project:", err);
+      toast({
+        title: "Failed to open",
+        description: err instanceof Error ? err.message : "Could not open the project. Make sure the application is installed.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsOpening(null);
+    }
+  };
 
   const handleCardClick = () => {
     router.push(`/project?id=${id}`);
@@ -80,6 +117,57 @@ export function ProjectCard({
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => e.stopPropagation()}
           >
+            {/* Open in IDE/Finder dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  mode="icon"
+                  className="h-6 w-6 shrink-0"
+                  aria-label="Open project options"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={(e) => handleOpenExternal('vscode', e)}
+                  disabled={isOpening !== null}
+                >
+                  {isOpening === 'vscode' ? (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <Code className="h-4 w-4" aria-hidden="true" />
+                  )}
+                  Open in VS Code
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => handleOpenExternal('cursor', e)}
+                  disabled={isOpening !== null}
+                >
+                  {isOpening === 'cursor' ? (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <Code className="h-4 w-4" aria-hidden="true" />
+                  )}
+                  Open in Cursor
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => handleOpenExternal('finder', e)}
+                  disabled={isOpening !== null}
+                >
+                  {isOpening === 'finder' ? (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <FolderOpen className="h-4 w-4" aria-hidden="true" />
+                  )}
+                  Open in Finder
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Tags */}
             {tags.map((tag) => (
               <Badge
                 key={tag.id}
