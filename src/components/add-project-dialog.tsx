@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import * as api from "@/lib/api";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { FolderBrowser } from "@/components/folder-browser";
 import type { CreateProjectInput } from "@/lib/db";
 
 interface AddProjectDialogProps {
@@ -29,68 +29,31 @@ export function AddProjectDialog({
   const [projectPath, setProjectPath] = useState<string>("");
   const [projectName, setProjectName] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isValidating, setIsValidating] = useState(false);
   const [showNameInput, setShowNameInput] = useState(false);
   const [pathError, setPathError] = useState<string | null>(null);
+  const [browserPath, setBrowserPath] = useState<string>("/Users");
   const { toast } = useToast();
 
-  const validatePath = async (path: string): Promise<boolean> => {
-    if (!path.trim()) {
-      setPathError("Please enter a project path");
-      return false;
-    }
-
-    setIsValidating(true);
-    setPathError(null);
-
-    try {
-      const beadsFolderPath = `${path.replace(/\/+$/, "")}/.beads`;
-      const result = await api.fs.exists(beadsFolderPath);
-
-      if (!result.exists) {
-        setPathError("No .beads folder found. Run `bd init` in your project first.");
-        toast({
-          title: "No .beads folder found",
-          description: "Run `bd init` in your project first.",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      return true;
-    } catch (err) {
-      console.error("Error validating path:", err);
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      setPathError(errorMessage || "Failed to validate path");
+  const handleSelectPath = (path: string, hasBeads: boolean) => {
+    if (!hasBeads) {
+      setPathError("No .beads folder found. Run `bd init` in your project first.");
       toast({
-        title: "Error",
-        description: errorMessage || "Failed to validate path. Please try again.",
+        title: "No .beads folder found",
+        description: "Run `bd init` in your project first.",
         variant: "destructive",
       });
-      return false;
-    } finally {
-      setIsValidating(false);
+      return;
     }
-  };
 
-  const handleValidateAndProceed = async () => {
-    const isValid = await validatePath(projectPath);
+    // Extract folder name as default project name
+    const cleanPath = path.replace(/\/+$/, "");
+    const pathParts = cleanPath.split(/[/\\]/);
+    const defaultName = pathParts[pathParts.length - 1] || "Untitled Project";
 
-    if (isValid) {
-      // Extract folder name as default project name
-      const cleanPath = projectPath.replace(/\/+$/, "");
-      const pathParts = cleanPath.split(/[/\\]/);
-      const defaultName = pathParts[pathParts.length - 1] || "Untitled Project";
-
-      setProjectName(defaultName);
-      setShowNameInput(true);
-    }
-  };
-
-  const handlePathBlur = () => {
-    if (projectPath.trim()) {
-      setPathError(null); // Clear error on blur, will validate on button click
-    }
+    setProjectPath(cleanPath);
+    setProjectName(defaultName);
+    setPathError(null);
+    setShowNameInput(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -133,6 +96,7 @@ export function AddProjectDialog({
     setProjectName("");
     setShowNameInput(false);
     setPathError(null);
+    setBrowserPath("/Users");
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -144,49 +108,26 @@ export function AddProjectDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Add Project</DialogTitle>
           <DialogDescription>
             {showNameInput
               ? "Give your project a name."
-              : "Enter the path to a folder containing a beads project."}
+              : "Browse to a folder containing a beads project."}
           </DialogDescription>
         </DialogHeader>
 
         {!showNameInput ? (
           <div className="flex flex-col gap-4 py-4">
-            <div className="space-y-2">
-              <label htmlFor="path" className="text-sm font-medium text-zinc-300">
-                Project Path
-              </label>
-              <Input
-                id="path"
-                value={projectPath}
-                onChange={(e) => {
-                  setProjectPath(e.target.value);
-                  setPathError(null);
-                }}
-                onBlur={handlePathBlur}
-                placeholder="/path/to/your/project"
-                autoFocus
-                className={pathError ? "border-red-500" : ""}
-              />
-              {pathError && (
-                <p className="text-sm text-red-400">{pathError}</p>
-              )}
-              <p className="text-xs text-zinc-500">
-                The folder must contain a <code className="rounded bg-zinc-800 px-1 py-0.5 text-zinc-300">.beads</code> directory
-              </p>
-            </div>
-            <DialogFooter>
-              <Button
-                onClick={handleValidateAndProceed}
-                disabled={isValidating || !projectPath.trim()}
-              >
-                {isValidating ? "Validating\u2026" : "Validate & Continue"}
-              </Button>
-            </DialogFooter>
+            <FolderBrowser
+              currentPath={browserPath}
+              onPathChange={setBrowserPath}
+              onSelectPath={handleSelectPath}
+            />
+            {pathError && (
+              <p className="text-sm text-red-400">{pathError}</p>
+            )}
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
