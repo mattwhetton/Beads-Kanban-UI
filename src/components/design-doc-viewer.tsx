@@ -161,19 +161,21 @@ export function DesignDocViewer({ designDocPath, epicId, projectPath, onFullScre
 
       <MorphingDialogContainer>
         <MorphingDialogContent
-          className="relative bg-background border rounded-lg shadow-lg w-[60vw] max-h-[80vh] flex flex-col overflow-hidden"
+          className="relative bg-background border rounded-lg shadow-lg w-[60vw] max-h-[80vh] overflow-hidden"
         >
-          <ScrollArea className="flex-1 min-h-0">
+          {/* Fixed header outside scroll area */}
+          <div className="flex items-center gap-2 px-6 pt-6 pb-3 border-b">
+            <FileText className="size-4 text-muted-foreground" aria-hidden="true" />
+            <MorphingDialogTitle>
+              <h2 className="text-sm font-semibold">Design Document</h2>
+            </MorphingDialogTitle>
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+              {epicId}
+            </Badge>
+          </div>
+          {/* Scrollable content with explicit height */}
+          <ScrollArea className="h-[calc(80vh-5rem)]">
             <div className="p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <FileText className="size-4 text-muted-foreground" aria-hidden="true" />
-                <MorphingDialogTitle>
-                  <h2 className="text-sm font-semibold">Design Document</h2>
-                </MorphingDialogTitle>
-                <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                  {epicId}
-                </Badge>
-              </div>
               <MorphingDialogDescription
                 disableLayoutAnimation
                 variants={{
