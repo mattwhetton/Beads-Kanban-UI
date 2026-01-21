@@ -1,17 +1,15 @@
 .card {
   border-radius: var(--radius);
-  color: var(--foreground);
+  color: hsl(var(--foreground));
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   padding: 1.5rem;
-  background-color: oklch(from var(--card) l c h / 0.3);
-  border: none;
+  background-color: hsl(var(--card) / 0.95);
+  border: 1px solid hsl(var(--border) / 0.6);
   position: relative;
   justify-content: space-between;
-  box-shadow:
-    0 0 0 1px oklch(from var(--border) l c h / 0.5),
-    var(--shadow-border-stack);
+  box-shadow: 0 1px 3px hsl(var(--foreground) / 0.08);
 }
 
 .header {
@@ -33,7 +31,7 @@
 .description {
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: var(--muted-foreground);
+  color: hsl(var(--muted-foreground));
   margin: 0;
   grid-column: 1 / -1;
   white-space: unset;
@@ -137,13 +135,10 @@
 }
 
 .icon {
-  background-color: var(--muted);
+  background-color: hsl(var(--muted));
   border-radius: var(--radius);
-  border: none;
-  box-shadow:
-    0 0 0 1px oklch(from var(--border) l c h / 0.5),
-    0 1px 2px oklch(from var(--foreground) l c h / 0.04),
-    inset 0 0 0 1px oklch(from var(--background) l c h / 0.02);
+  border: 1px solid hsl(var(--border) / 0.5);
+  box-shadow: 0 1px 2px hsl(var(--foreground) / 0.04);
   display: flex;
   align-items: center;
   justify-content: center;
