@@ -95,3 +95,7 @@
 .font-heading {
   font-family: var(--font-space-grotesk), system-ui, sans-serif;
 }
+
+.font-project-name {
+  font-family: var(--font-plus-jakarta), system-ui, sans-serif;
+}

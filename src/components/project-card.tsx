@@ -15,6 +15,16 @@ import { Badge } from "@/components/ui/badge";
 import { TagPicker } from "@/components/tag-picker";
 import type { Tag } from "@/lib/db";
 
+/**
+ * Converts kebab-case, snake_case, camelCase to Title Case with spaces
+ */
+function formatProjectName(name: string): string {
+  return name
+    .replace(/[-_]/g, ' ')  // Replace hyphens and underscores with spaces
+    .replace(/([a-z])([A-Z])/g, '$1 $2')  // Add space before capitals in camelCase
+    .replace(/\b\w/g, c => c.toUpperCase());  // Capitalize first letter of each word
+}
+
 interface BeadCounts {
   open: number;
   in_progress: number;
@@ -48,7 +58,9 @@ export function ProjectCard({
           <RoiuiCardIcon>
             <FolderKanban className="size-5" aria-hidden="true" />
           </RoiuiCardIcon>
-          <RoiuiCardTitle className="text-balance">{name}</RoiuiCardTitle>
+          <RoiuiCardTitle className="text-balance font-project-name">
+            {formatProjectName(name)}
+          </RoiuiCardTitle>
           <RoiuiCardDescription className="truncate" title={path}>
             {path}
           </RoiuiCardDescription>
