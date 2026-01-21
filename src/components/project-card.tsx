@@ -3,14 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { StatusDonut } from "@/components/status-donut";
-import {
-  RoiuiCard,
-  RoiuiCardAction,
-  RoiuiCardDescription,
-  RoiuiCardHeader,
-  RoiuiCardIcon,
-  RoiuiCardTitle,
-} from "@/components/ui/card";
+import { RoiuiCard } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -87,7 +80,7 @@ export function ProjectCard({
 
   return (
     <RoiuiCard
-      className="cursor-pointer relative"
+      className="cursor-pointer flex flex-col min-h-[180px]"
       onClick={handleCardClick}
       role="link"
       tabIndex={0}
@@ -99,53 +92,60 @@ export function ProjectCard({
         }
       }}
     >
-      <RoiuiCardHeader>
-        <RoiuiCardIcon>
-          <StatusDonut beadCounts={beadCounts} size={36} />
-        </RoiuiCardIcon>
-        <RoiuiCardTitle className="text-balance font-project-name">
-          {formatProjectName(name)}
-        </RoiuiCardTitle>
-        <RoiuiCardDescription className="truncate" title={path}>
-          {path}
-        </RoiuiCardDescription>
-        <RoiuiCardAction>
-          {/* Tags */}
-          <div
-            className="flex min-w-0 flex-wrap items-center gap-1.5"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => e.stopPropagation()}
-          >
-            {tags.map((tag) => (
-              <Badge
-                key={tag.id}
-                variant="secondary"
-                size="sm"
-                style={{
-                  backgroundColor: `${tag.color}20`,
-                  color: tag.color,
-                  borderColor: tag.color,
-                }}
-              >
-                {tag.name}
-              </Badge>
-            ))}
-            {onTagsChange && (
-              <TagPicker
-                projectId={id}
-                projectTags={tags}
-                onTagsChange={onTagsChange}
-              />
-            )}
-          </div>
-        </RoiuiCardAction>
-      </RoiuiCardHeader>
+      {/* Top row: Donut left, Tags right */}
+      <div className="flex items-start justify-between">
+        <StatusDonut beadCounts={beadCounts} size={36} />
+        <div
+          className="flex flex-wrap items-center gap-1.5"
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+        >
+          {tags.map((tag) => (
+            <Badge
+              key={tag.id}
+              variant="secondary"
+              size="sm"
+              style={{
+                backgroundColor: `${tag.color}20`,
+                color: tag.color,
+                borderColor: tag.color,
+              }}
+            >
+              {tag.name}
+            </Badge>
+          ))}
+          {onTagsChange && (
+            <TagPicker
+              projectId={id}
+              projectTags={tags}
+              onTagsChange={onTagsChange}
+            />
+          )}
+        </div>
+      </div>
 
-      {/* Open In button - positioned bottom right */}
-      <div className="absolute bottom-4 right-4" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+      {/* Middle: Title (grows to fill space) */}
+      <div className="flex-1 flex items-center">
+        <h3 className="text-xl font-medium text-balance font-project-name">
+          {formatProjectName(name)}
+        </h3>
+      </div>
+
+      {/* Bottom row: Path left, Open In button right (aligned) */}
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-sm text-zinc-500 truncate min-w-0 flex-1" title={path}>
+          {path}
+        </p>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" mode="icon" className="focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background" aria-label="Open in external application">
+            <Button
+              variant="ghost"
+              size="sm"
+              mode="icon"
+              className="shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              aria-label="Open in external application"
+              onClick={(e) => e.stopPropagation()}
+            >
               <ExternalLink className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
