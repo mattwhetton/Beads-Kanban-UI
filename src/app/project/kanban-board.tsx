@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { ArrowLeft, Search, Filter, ChevronDown, X } from "lucide-react";
+import { QuickFilterBar } from "@/components/quick-filter-bar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -50,26 +51,9 @@ const STATUSES: { value: BeadStatus; label: string }[] = [
 ];
 
 /**
- * Priority filter options
- */
-const PRIORITIES = [
-  { value: 0, label: "P0 - Critical" },
-  { value: 1, label: "P1 - High" },
-  { value: 2, label: "P2 - Medium" },
-  { value: 3, label: "P3 - Low" },
-  { value: 4, label: "P4 - Trivial" },
-];
-
-/**
  * Issue type filter options
  */
 type IssueTypeFilter = "all" | "epics" | "tasks";
-
-const ISSUE_TYPES: { value: IssueTypeFilter; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "epics", label: "Epics Only" },
-  { value: "tasks", label: "Tasks Only" },
-];
 
 /**
  * Main Kanban board component with 4 columns, search, filter, and keyboard navigation
@@ -225,16 +209,6 @@ export default function KanbanBoard() {
   };
 
   /**
-   * Toggle priority filter
-   */
-  const togglePriority = (priority: number) => {
-    const newPriorities = filters.priorities.includes(priority)
-      ? filters.priorities.filter((p) => p !== priority)
-      : [...filters.priorities, priority];
-    setFilters({ priorities: newPriorities });
-  };
-
-  /**
    * Toggle owner filter
    */
   const toggleOwner = (owner: string) => {
@@ -354,21 +328,7 @@ export default function KanbanBoard() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              {/* Issue Type Filter */}
-              <DropdownMenuLabel>Issue Type</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {ISSUE_TYPES.map(({ value, label }) => (
-                <DropdownMenuCheckboxItem
-                  key={value}
-                  checked={typeFilter === value}
-                  onCheckedChange={() => setTypeFilter(value)}
-                >
-                  {label}
-                </DropdownMenuCheckboxItem>
-              ))}
-
               {/* Status Filter */}
-              <DropdownMenuSeparator />
               <DropdownMenuLabel>Status</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {STATUSES.map(({ value, label }) => (
@@ -376,20 +336,6 @@ export default function KanbanBoard() {
                   key={value}
                   checked={filters.statuses.includes(value)}
                   onCheckedChange={() => toggleStatus(value)}
-                >
-                  {label}
-                </DropdownMenuCheckboxItem>
-              ))}
-
-              {/* Priority Filter */}
-              <DropdownMenuSeparator />
-              <DropdownMenuLabel>Priority</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {PRIORITIES.map(({ value, label }) => (
-                <DropdownMenuCheckboxItem
-                  key={value}
-                  checked={filters.priorities.includes(value)}
-                  onCheckedChange={() => togglePriority(value)}
                 >
                   {label}
                 </DropdownMenuCheckboxItem>
@@ -429,6 +375,19 @@ export default function KanbanBoard() {
           </DropdownMenu>
         </div>
       </header>
+
+      {/* Quick Filter Bar */}
+      <div className="px-4 py-2 border-b border-zinc-800">
+        <QuickFilterBar
+          typeFilter={typeFilter}
+          onTypeFilterChange={setTypeFilter}
+          todayOnly={filters.todayOnly}
+          onTodayOnlyChange={(value) => setFilters({ todayOnly: value })}
+          sortField={filters.sortField}
+          sortDirection={filters.sortDirection}
+          onSortChange={(field, direction) => setFilters({ sortField: field, sortDirection: direction })}
+        />
+      </div>
 
       {/* Kanban Columns */}
       <main className="flex-1 overflow-hidden p-4">
