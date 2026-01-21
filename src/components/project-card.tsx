@@ -12,7 +12,7 @@ import {
   RoiuiCardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button, ButtonArrow } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +22,7 @@ import {
 import { TagPicker } from "@/components/tag-picker";
 import { useToast } from "@/hooks/use-toast";
 import * as api from "@/lib/api";
-import { ExternalLink, ChevronDown, Code, FolderOpen, Loader2 } from "lucide-react";
+import { ExternalLink, Code, FolderOpen, Loader2 } from "lucide-react";
 import type { Tag } from "@/lib/db";
 import type { BeadCounts } from "@/types";
 
@@ -87,7 +87,7 @@ export function ProjectCard({
 
   return (
     <RoiuiCard
-      className="cursor-pointer"
+      className="cursor-pointer relative"
       onClick={handleCardClick}
       role="link"
       tabIndex={0}
@@ -101,7 +101,7 @@ export function ProjectCard({
     >
       <RoiuiCardHeader>
         <RoiuiCardIcon>
-          <StatusDonut beadCounts={beadCounts} size={48} />
+          <StatusDonut beadCounts={beadCounts} size={36} />
         </RoiuiCardIcon>
         <RoiuiCardTitle className="text-balance font-project-name">
           {formatProjectName(name)}
@@ -110,62 +110,12 @@ export function ProjectCard({
           {path}
         </RoiuiCardDescription>
         <RoiuiCardAction>
+          {/* Tags */}
           <div
             className="flex min-w-0 flex-wrap items-center gap-1.5"
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => e.stopPropagation()}
           >
-            {/* Open in IDE/Finder dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="mono"
-                  size="sm"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                  Open In
-                  <ButtonArrow icon={ChevronDown} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={(e) => handleOpenExternal('vscode', e)}
-                  disabled={isOpening !== null}
-                >
-                  {isOpening === 'vscode' ? (
-                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                  ) : (
-                    <Code className="h-4 w-4" aria-hidden="true" />
-                  )}
-                  VS Code
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={(e) => handleOpenExternal('cursor', e)}
-                  disabled={isOpening !== null}
-                >
-                  {isOpening === 'cursor' ? (
-                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                  ) : (
-                    <Code className="h-4 w-4" aria-hidden="true" />
-                  )}
-                  Cursor
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={(e) => handleOpenExternal('finder', e)}
-                  disabled={isOpening !== null}
-                >
-                  {isOpening === 'finder' ? (
-                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                  ) : (
-                    <FolderOpen className="h-4 w-4" aria-hidden="true" />
-                  )}
-                  Finder
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Tags */}
             {tags.map((tag) => (
               <Badge
                 key={tag.id}
@@ -190,6 +140,52 @@ export function ProjectCard({
           </div>
         </RoiuiCardAction>
       </RoiuiCardHeader>
+
+      {/* Open In button - positioned bottom right */}
+      <div className="absolute bottom-4 right-4" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" mode="icon" aria-label="Open in external application">
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={(e) => handleOpenExternal('vscode', e)}
+              disabled={isOpening !== null}
+            >
+              {isOpening === 'vscode' ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <Code className="h-4 w-4" aria-hidden="true" />
+              )}
+              VS Code
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => handleOpenExternal('cursor', e)}
+              disabled={isOpening !== null}
+            >
+              {isOpening === 'cursor' ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <Code className="h-4 w-4" aria-hidden="true" />
+              )}
+              Cursor
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => handleOpenExternal('finder', e)}
+              disabled={isOpening !== null}
+            >
+              {isOpening === 'finder' ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <FolderOpen className="h-4 w-4" aria-hidden="true" />
+              )}
+              Finder
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </RoiuiCard>
   );
 }
