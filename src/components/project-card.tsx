@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FolderKanban } from "lucide-react";
 import {
   RoiuiCard,
@@ -43,75 +43,89 @@ export function ProjectCard({
   beadCounts = { open: 0, in_progress: 0, inreview: 0, closed: 0 },
   onTagsChange,
 }: ProjectCardProps) {
+  const router = useRouter();
   const totalBeads = beadCounts.open + beadCounts.in_progress + beadCounts.inreview + beadCounts.closed;
 
+  const handleCardClick = () => {
+    router.push(`/project?id=${id}`);
+  };
+
   return (
-    <Link href={`/project?id=${id}`}>
-      <RoiuiCard className="cursor-pointer">
-        <RoiuiCardHeader>
-          <RoiuiCardIcon>
-            <FolderKanban className="size-5" aria-hidden="true" />
-          </RoiuiCardIcon>
-          <RoiuiCardTitle className="text-balance font-project-name">
-            {formatProjectName(name)}
-          </RoiuiCardTitle>
-          <RoiuiCardDescription className="truncate" title={path}>
-            {path}
-          </RoiuiCardDescription>
-          <RoiuiCardAction>
-            <div
-              className="flex min-w-0 flex-wrap items-center gap-1.5"
-              onClick={(e) => e.stopPropagation()}
-              onKeyDown={(e) => e.stopPropagation()}
-            >
-              {tags.map((tag) => (
-                <Badge
-                  key={tag.id}
-                  variant="secondary"
-                  size="sm"
-                  style={{
-                    backgroundColor: `${tag.color}20`,
-                    color: tag.color,
-                    borderColor: tag.color,
-                  }}
-                >
-                  {tag.name}
-                </Badge>
-              ))}
-              {onTagsChange && (
-                <TagPicker
-                  projectId={id}
-                  projectTags={tags}
-                  onTagsChange={onTagsChange}
-                />
-              )}
-            </div>
-          </RoiuiCardAction>
-        </RoiuiCardHeader>
-        <RoiuiCardContent>
-          {totalBeads > 0 ? (
-            <p className="text-sm text-zinc-400">
-              <span className="text-blue-400">{beadCounts.open} open</span>
-              {beadCounts.inreview > 0 && (
-                <>
-                  {" "}
-                  <span className="text-zinc-500">·</span>{" "}
-                  <span className="text-purple-400">{beadCounts.inreview} in review</span>
-                </>
-              )}
-              {beadCounts.closed > 0 && (
-                <>
-                  {" "}
-                  <span className="text-zinc-500">·</span>{" "}
-                  <span className="text-green-400">{beadCounts.closed} closed</span>
-                </>
-              )}
-            </p>
-          ) : (
-            <p className="text-sm text-zinc-500">No tasks yet</p>
-          )}
-        </RoiuiCardContent>
-      </RoiuiCard>
-    </Link>
+    <RoiuiCard
+      className="cursor-pointer"
+      onClick={handleCardClick}
+      role="link"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleCardClick();
+        }
+      }}
+    >
+      <RoiuiCardHeader>
+        <RoiuiCardIcon>
+          <FolderKanban className="size-5" aria-hidden="true" />
+        </RoiuiCardIcon>
+        <RoiuiCardTitle className="text-balance font-project-name">
+          {formatProjectName(name)}
+        </RoiuiCardTitle>
+        <RoiuiCardDescription className="truncate" title={path}>
+          {path}
+        </RoiuiCardDescription>
+        <RoiuiCardAction>
+          <div
+            className="flex min-w-0 flex-wrap items-center gap-1.5"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
+            {tags.map((tag) => (
+              <Badge
+                key={tag.id}
+                variant="secondary"
+                size="sm"
+                style={{
+                  backgroundColor: `${tag.color}20`,
+                  color: tag.color,
+                  borderColor: tag.color,
+                }}
+              >
+                {tag.name}
+              </Badge>
+            ))}
+            {onTagsChange && (
+              <TagPicker
+                projectId={id}
+                projectTags={tags}
+                onTagsChange={onTagsChange}
+              />
+            )}
+          </div>
+        </RoiuiCardAction>
+      </RoiuiCardHeader>
+      <RoiuiCardContent>
+        {totalBeads > 0 ? (
+          <p className="text-sm text-zinc-400">
+            <span className="text-blue-400">{beadCounts.open} open</span>
+            {beadCounts.inreview > 0 && (
+              <>
+                {" "}
+                <span className="text-zinc-500">·</span>{" "}
+                <span className="text-purple-400">{beadCounts.inreview} in review</span>
+              </>
+            )}
+            {beadCounts.closed > 0 && (
+              <>
+                {" "}
+                <span className="text-zinc-500">·</span>{" "}
+                <span className="text-green-400">{beadCounts.closed} closed</span>
+              </>
+            )}
+          </p>
+        ) : (
+          <p className="text-sm text-zinc-500">No tasks yet</p>
+        )}
+      </RoiuiCardContent>
+    </RoiuiCard>
   );
 }
