@@ -8,10 +8,9 @@ import { ProjectCard } from "@/components/project-card";
 import { AddProjectDialog } from "@/components/add-project-dialog";
 import { useProjects } from "@/hooks/use-projects";
 import { Skeleton } from "@/components/ui/skeleton";
-import "@/components/Beams.css";
 
-// Dynamic import with SSR disabled for Three.js canvas component
-const Beams = dynamic(() => import("@/components/Beams"), { ssr: false });
+// Dynamic import with SSR disabled for WebGL canvas component
+const RippleGrid = dynamic(() => import("@/components/RippleGrid"), { ssr: false });
 
 export default function ProjectsPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -23,17 +22,17 @@ export default function ProjectsPage() {
 
   return (
     <div className="dark relative min-h-screen">
-      {/* Beams Background - fixed, full-screen, z-0 */}
-      <div className="fixed inset-0 z-0">
-        <Beams
-          beamWidth={8}
-          beamHeight={14}
-          beamNumber={20}
-          lightColor="#ffffff"
-          speed={2}
-          noiseIntensity={1.75}
-          scale={0.2}
-          rotation={30}
+      {/* RippleGrid Background - fixed, full-screen, z-0 */}
+      <div className="fixed inset-0 z-0 overflow-hidden">
+        <RippleGrid
+          enableRainbow={false}
+          gridColor="#ffffff"
+          rippleIntensity={0.05}
+          gridSize={10}
+          gridThickness={15}
+          mouseInteraction={true}
+          mouseInteractionRadius={1.2}
+          opacity={0.8}
         />
       </div>
 

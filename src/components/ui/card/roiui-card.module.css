@@ -12,6 +12,16 @@
   box-shadow: 0 1px 3px hsl(var(--foreground) / 0.08);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 1px hsl(var(--border) / 0.6),
+    0 10px 30px -10px rgba(0, 0, 0, 0.3),
+    0 4px 6px -2px rgba(0, 0, 0, 0.1),
+    0 0 20px -5px rgba(168, 85, 247, 0.15);
 }
 
 .header {
