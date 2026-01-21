@@ -31,15 +31,15 @@ export interface BeadDetailProps {
 function getStatusColor(status: BeadStatus): string {
   switch (status) {
     case "open":
-      return "bg-blue-100 text-blue-700 border-blue-200";
+      return "bg-blue-500/20 text-blue-400 border-blue-500/30";
     case "in_progress":
-      return "bg-amber-100 text-amber-700 border-amber-200";
+      return "bg-amber-500/20 text-amber-400 border-amber-500/30";
     case "inreview":
-      return "bg-purple-100 text-purple-700 border-purple-200";
+      return "bg-purple-500/20 text-purple-400 border-purple-500/30";
     case "closed":
-      return "bg-green-100 text-green-700 border-green-200";
+      return "bg-green-500/20 text-green-400 border-green-500/30";
     default:
-      return "bg-zinc-100 text-zinc-700 border-zinc-200";
+      return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30";
   }
 }
 
@@ -49,13 +49,13 @@ function getStatusColor(status: BeadStatus): string {
 function getPriorityColor(priority: number): string {
   switch (priority) {
     case 0:
-      return "bg-red-500 text-white border-transparent";
+      return "bg-red-500/20 text-red-400 border-red-500/30";
     case 1:
-      return "bg-orange-500 text-white border-transparent";
+      return "bg-orange-500/20 text-orange-400 border-orange-500/30";
     case 2:
-      return "bg-zinc-400 text-white border-transparent";
+      return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30";
     default:
-      return "bg-zinc-300 text-zinc-700 border-transparent";
+      return "bg-zinc-600/20 text-zinc-500 border-zinc-600/30";
   }
 }
 
@@ -146,7 +146,7 @@ export function BeadDetail({
         <SheetContent
           side="right"
           className={cn(
-            "w-full sm:max-w-lg md:max-w-xl overflow-y-auto",
+            "w-full sm:max-w-lg md:max-w-xl overflow-y-auto bg-[#0a0a0a] border-zinc-800",
             isDesignDocFullScreen && "invisible"
           )}
         >
@@ -165,26 +165,26 @@ export function BeadDetail({
 
           <SheetHeader className="space-y-4">
             {/* Ticket Number + Bead ID */}
-            <SheetDescription className="text-xs font-mono text-muted-foreground">
+            <SheetDescription className="text-xs font-mono text-zinc-500">
               {ticketNumber !== undefined && (
-                <span className="font-semibold text-foreground">#{ticketNumber}</span>
+                <span className="font-semibold text-zinc-200">#{ticketNumber}</span>
               )}
               {ticketNumber !== undefined && " "}
               {formatBeadId(bead.id)}
             </SheetDescription>
 
             {/* Title */}
-            <SheetTitle className="text-xl font-semibold leading-tight">
+            <SheetTitle className="text-xl font-semibold leading-tight text-zinc-100">
               {bead.title}
             </SheetTitle>
           </SheetHeader>
 
           {/* Metadata Grid */}
-          <div className="mt-6 rounded-lg border bg-muted/30 p-4">
+          <div className="mt-6 rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
               {/* Status */}
               <div className="space-y-1">
-                <span className="text-muted-foreground text-xs">Status</span>
+                <span className="text-zinc-500 text-xs">Status</span>
                 <div>
                   <Badge
                     variant="outline"
@@ -197,9 +197,10 @@ export function BeadDetail({
 
               {/* Priority */}
               <div className="space-y-1">
-                <span className="text-muted-foreground text-xs">Priority</span>
+                <span className="text-zinc-500 text-xs">Priority</span>
                 <div>
                   <Badge
+                    variant="outline"
                     className={cn("font-medium", getPriorityColor(bead.priority))}
                   >
                     P{bead.priority}
@@ -209,9 +210,9 @@ export function BeadDetail({
 
               {/* Type */}
               <div className="space-y-1">
-                <span className="text-muted-foreground text-xs">Type</span>
+                <span className="text-zinc-500 text-xs">Type</span>
                 <div>
-                  <Badge variant="outline" className="font-normal capitalize">
+                  <Badge variant="outline" className="font-normal capitalize text-zinc-200 border-zinc-700">
                     {bead.issue_type}
                   </Badge>
                 </div>
@@ -219,19 +220,19 @@ export function BeadDetail({
 
               {/* Branch */}
               <div className="space-y-1">
-                <span className="text-muted-foreground text-xs">Branch</span>
+                <span className="text-zinc-500 text-xs">Branch</span>
                 <div className="flex items-center gap-1.5">
-                  <GitBranch className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
-                  <span className="font-mono text-xs">{branchName}</span>
+                  <GitBranch className="h-3.5 w-3.5 text-zinc-500" aria-hidden="true" />
+                  <span className="font-mono text-xs text-zinc-200">{branchName}</span>
                 </div>
               </div>
 
               {/* Created */}
               <div className="space-y-1">
-                <span className="text-muted-foreground text-xs">Created</span>
+                <span className="text-zinc-500 text-xs">Created</span>
                 <div className="flex items-center gap-1.5">
-                  <Calendar className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
-                  <span className="text-xs">{formatDate(bead.created_at)}</span>
+                  <Calendar className="h-3.5 w-3.5 text-zinc-500" aria-hidden="true" />
+                  <span className="text-xs text-zinc-200">{formatDate(bead.created_at)}</span>
                 </div>
               </div>
             </div>
@@ -240,9 +241,9 @@ export function BeadDetail({
           {/* Description */}
           {bead.description && (
             <div className="mt-6">
-              <h3 className="text-sm font-semibold mb-2">Description</h3>
-              <div className="h-px bg-border mb-3" />
-              <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+              <h3 className="text-sm font-semibold mb-2 text-zinc-200">Description</h3>
+              <div className="h-px bg-zinc-800 mb-3" />
+              <div className="text-sm text-zinc-400 leading-relaxed whitespace-pre-wrap">
                 {bead.description}
               </div>
             </div>
@@ -251,7 +252,7 @@ export function BeadDetail({
           {/* Design Document */}
           {hasDesignDoc && projectPath && (
             <div className="mt-6">
-              <h3 className="text-sm font-semibold mb-3">Design Document</h3>
+              <h3 className="text-sm font-semibold mb-3 text-zinc-200">Design Document</h3>
               <DesignDocViewer
                 designDocPath={bead.design_doc!}
                 epicId={formatBeadId(bead.id)}
