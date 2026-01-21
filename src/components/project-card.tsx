@@ -14,6 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { TagPicker } from "@/components/tag-picker";
 import type { Tag } from "@/lib/db";
+import type { BeadCounts } from "@/types";
 
 /**
  * Converts kebab-case, snake_case, camelCase to Title Case with spaces
@@ -23,13 +24,6 @@ function formatProjectName(name: string): string {
     .replace(/[-_]/g, ' ')  // Replace hyphens and underscores with spaces
     .replace(/([a-z])([A-Z])/g, '$1 $2')  // Add space before capitals in camelCase
     .replace(/\b\w/g, c => c.toUpperCase());  // Capitalize first letter of each word
-}
-
-interface BeadCounts {
-  open: number;
-  in_progress: number;
-  inreview: number;
-  closed: number;
 }
 
 interface ProjectCardProps {

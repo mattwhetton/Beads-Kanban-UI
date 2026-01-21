@@ -1,4 +1,14 @@
 /**
+ * Bead counts by status for a project
+ */
+export interface BeadCounts {
+  open: number;
+  in_progress: number;
+  inreview: number;
+  closed: number;
+}
+
+/**
  * Project stored in local SQLite
  */
 export interface Project {
@@ -8,6 +18,7 @@ export interface Project {
   tags: Tag[];
   lastOpened: string;
   createdAt: string;
+  beadCounts?: BeadCounts;
 }
 
 /**

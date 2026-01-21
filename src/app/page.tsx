@@ -29,7 +29,7 @@ export default function ProjectsPage() {
           beamWidth={8}
           beamHeight={14}
           beamNumber={20}
-          lightColor="#f0c7ff"
+          lightColor="#ffffff"
           speed={2}
           noiseIntensity={1.75}
           scale={0.2}
@@ -92,6 +92,7 @@ export default function ProjectsPage() {
                   name={project.name}
                   path={project.path}
                   tags={project.tags}
+                  beadCounts={project.beadCounts}
                   onTagsChange={(tags) => updateProjectTags(project.id, tags)}
                 />
               ))}

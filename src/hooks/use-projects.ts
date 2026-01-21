@@ -6,7 +6,8 @@ import {
   createProject,
   type CreateProjectInput,
 } from "@/lib/db";
-import type { Project, Tag } from "@/types";
+import { loadProjectBeads, groupBeadsByStatus } from "@/lib/beads-parser";
+import type { Project, Tag, BeadCounts } from "@/types";
 
 interface UseProjectsResult {
   projects: Project[];
@@ -27,7 +28,31 @@ export function useProjects(): UseProjectsResult {
       setIsLoading(true);
       setError(null);
       const data = await getProjectsWithTags();
-      setProjects(data);
+
+      // Fetch bead counts for all projects in parallel
+      const projectsWithCounts = await Promise.all(
+        data.map(async (project) => {
+          try {
+            const beads = await loadProjectBeads(project.path);
+            const grouped = groupBeadsByStatus(beads);
+            const beadCounts: BeadCounts = {
+              open: grouped.open.length,
+              in_progress: grouped.in_progress.length,
+              inreview: grouped.inreview.length,
+              closed: grouped.closed.length,
+            };
+            return { ...project, beadCounts };
+          } catch {
+            // If loading beads fails, return project with zero counts
+            return {
+              ...project,
+              beadCounts: { open: 0, in_progress: 0, inreview: 0, closed: 0 },
+            };
+          }
+        })
+      );
+
+      setProjects(projectsWithCounts);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to fetch projects"));
     } finally {
