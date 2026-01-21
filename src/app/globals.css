@@ -46,6 +46,11 @@
     /* Beads Accents (HSL) */
     --blocked: 0 84% 60%;
     --branch: 142 76% 36%;
+
+    /* roiui Card CSS Variables */
+    --shadow-border-stack: 0 1px 2px oklch(from var(--foreground) l c h / 0.04);
+    --mix-card-33-bg: oklch(from var(--card) l c h / 0.33);
+    --ease-in-out-quad: cubic-bezier(0.455, 0.03, 0.515, 0.955);
   }
 
   .dark {
