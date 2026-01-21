@@ -98,7 +98,7 @@ export function ActivityTimeline({ bead, comments }: ActivityTimelineProps) {
       </h4>
       <div className="relative">
         {/* Vertical line */}
-        <div className="absolute left-[5px] top-2 bottom-2 w-px bg-muted-foreground/20" />
+        <div className="absolute left-[5px] top-2 bottom-2 w-px bg-zinc-700" />
 
         {/* Events */}
         <div className="space-y-3">
@@ -120,10 +120,10 @@ export function ActivityTimeline({ bead, comments }: ActivityTimelineProps) {
 
               {/* Content */}
               <div className="flex flex-1 items-center justify-between min-w-0">
-                <span className="text-xs text-muted-foreground truncate">
+                <span className="text-xs text-zinc-400 truncate">
                   {event.description}
                 </span>
-                <span className="text-[10px] text-muted-foreground/70 whitespace-nowrap ml-2">
+                <span className="text-[10px] text-zinc-600 whitespace-nowrap ml-2">
                   {formatTimestamp(event.timestamp)}
                 </span>
               </div>

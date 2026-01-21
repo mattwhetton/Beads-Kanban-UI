@@ -34,19 +34,19 @@ function CommentCard({ comment }: { comment: Comment }) {
   return (
     <div
       className={cn(
-        "rounded-lg border bg-muted/30 p-3 space-y-1.5"
+        "rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 space-y-1.5"
       )}
     >
       {/* Author and timestamp */}
       <div className="flex items-center gap-2 text-sm">
-        <span className="font-semibold">{comment.author}</span>
-        <span className="text-muted-foreground">
+        <span className="font-semibold text-zinc-200">{comment.author}</span>
+        <span className="text-zinc-500">
           {formatRelativeTime(comment.created_at)}
         </span>
       </div>
 
       {/* Comment text */}
-      <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+      <p className="text-sm text-zinc-300 leading-relaxed whitespace-pre-wrap">
         {comment.text}
       </p>
     </div>
@@ -106,7 +106,7 @@ export function CommentList({
 
       {/* Comments or empty state */}
       {comments.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-4 text-center">
+        <p className="text-sm text-zinc-500 py-4 text-center">
           No comments yet
         </p>
       ) : (
@@ -122,7 +122,8 @@ export function CommentList({
         <div className="flex gap-2">
           <Input
             type="text"
-            placeholder="Add a comment..."
+            placeholder="Add a comment\u2026"
+            aria-label="Add a comment"
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -134,7 +135,7 @@ export function CommentList({
             disabled={isSubmitting || !newComment.trim()}
             size="sm"
           >
-            {isSubmitting ? "Adding..." : "Add"}
+            {isSubmitting ? "Adding\u2026" : "Add"}
           </Button>
         </div>
         {error && (

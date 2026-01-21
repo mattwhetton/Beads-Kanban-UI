@@ -157,7 +157,7 @@ export function AddProjectDialog({
         {!showNameInput ? (
           <div className="flex flex-col gap-4 py-4">
             <div className="space-y-2">
-              <label htmlFor="path" className="text-sm font-medium text-zinc-700">
+              <label htmlFor="path" className="text-sm font-medium text-zinc-300">
                 Project Path
               </label>
               <Input
@@ -173,10 +173,10 @@ export function AddProjectDialog({
                 className={pathError ? "border-red-500" : ""}
               />
               {pathError && (
-                <p className="text-sm text-red-500">{pathError}</p>
+                <p className="text-sm text-red-400">{pathError}</p>
               )}
               <p className="text-xs text-zinc-500">
-                The folder must contain a <code className="rounded bg-zinc-100 px-1 py-0.5">.beads</code> directory
+                The folder must contain a <code className="rounded bg-zinc-800 px-1 py-0.5 text-zinc-300">.beads</code> directory
               </p>
             </div>
             <DialogFooter>
@@ -184,7 +184,7 @@ export function AddProjectDialog({
                 onClick={handleValidateAndProceed}
                 disabled={isValidating || !projectPath.trim()}
               >
-                {isValidating ? "Validating..." : "Validate & Continue"}
+                {isValidating ? "Validating\u2026" : "Validate & Continue"}
               </Button>
             </DialogFooter>
           </div>
@@ -192,7 +192,7 @@ export function AddProjectDialog({
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium text-zinc-700">
+                <label htmlFor="name" className="text-sm font-medium text-zinc-300">
                   Project Name
                 </label>
                 <Input
@@ -204,8 +204,8 @@ export function AddProjectDialog({
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-700">Location</label>
-                <p className="truncate rounded-md bg-zinc-50 px-3 py-2 text-sm text-zinc-600">
+                <label className="text-sm font-medium text-zinc-300">Location</label>
+                <p className="truncate rounded-md bg-zinc-800 px-3 py-2 text-sm text-zinc-400">
                   {projectPath}
                 </p>
               </div>
@@ -219,7 +219,7 @@ export function AddProjectDialog({
                 Back
               </Button>
               <Button type="submit" disabled={isSubmitting || !projectName.trim()}>
-                {isSubmitting ? "Adding..." : "Add Project"}
+                {isSubmitting ? "Adding\u2026" : "Add Project"}
               </Button>
             </DialogFooter>
           </form>

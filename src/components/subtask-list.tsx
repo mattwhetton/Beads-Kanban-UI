@@ -21,14 +21,14 @@ export interface SubtaskListProps {
 function getStatusIcon(status: BeadStatus) {
   switch (status) {
     case 'closed':
-      return <Check className="h-3.5 w-3.5 text-green-600" aria-hidden="true" />;
+      return <Check className="h-3.5 w-3.5 text-green-400" aria-hidden="true" />;
     case 'in_progress':
-      return <Clock className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />;
+      return <Clock className="h-3.5 w-3.5 text-blue-400" aria-hidden="true" />;
     case 'inreview':
-      return <FileCheck className="h-3.5 w-3.5 text-purple-600" aria-hidden="true" />;
+      return <FileCheck className="h-3.5 w-3.5 text-purple-400" aria-hidden="true" />;
     case 'open':
     default:
-      return <Circle className="h-3.5 w-3.5 text-zinc-400" aria-hidden="true" />;
+      return <Circle className="h-3.5 w-3.5 text-zinc-500" aria-hidden="true" />;
   }
 }
 
@@ -38,11 +38,11 @@ function getStatusIcon(status: BeadStatus) {
 function getStatusColor(status: BeadStatus): string {
   switch (status) {
     case 'closed':
-      return "text-green-600";
+      return "text-green-400";
     case 'in_progress':
-      return "text-blue-600";
+      return "text-blue-400";
     case 'inreview':
-      return "text-purple-600";
+      return "text-purple-400";
     case 'open':
     default:
       return "text-zinc-500";
@@ -89,7 +89,7 @@ export function SubtaskList({
           aria-label={`Open task: ${child.title}`}
           className={cn(
             "w-full flex items-start gap-2 px-2 py-1.5 rounded-md",
-            "hover:bg-accent transition-colors text-left",
+            "hover:bg-zinc-800 transition-colors text-left",
             "group"
           )}
         >
@@ -99,13 +99,13 @@ export function SubtaskList({
           <div className="flex-1 min-w-0">
             <p className={cn(
               "text-xs font-medium group-hover:underline",
-              child.status === 'closed' && "line-through text-muted-foreground",
-              child.status !== 'closed' && "text-foreground"
+              child.status === 'closed' && "line-through text-zinc-500",
+              child.status !== 'closed' && "text-zinc-200"
             )}>
               {truncate(child.title, 50)}
             </p>
             {child.description && (
-              <p className="text-[10px] text-muted-foreground mt-0.5">
+              <p className="text-[10px] text-zinc-500 mt-0.5">
                 {truncate(child.description, 60)}
               </p>
             )}
