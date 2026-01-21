@@ -1,12 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Maximize2, Minimize2, FileText, Loader2 } from "lucide-react";
+import { FileText, Loader2 } from "lucide-react";
+import {
+  MorphingDialog,
+  MorphingDialogTrigger,
+  MorphingDialogContent,
+  MorphingDialogContainer,
+  MorphingDialogClose,
+  MorphingDialogTitle,
+  MorphingDialogDescription,
+} from "@/components/ui/morphing-dialog";
 import "highlight.js/styles/github-dark.css";
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3008';
@@ -38,19 +47,27 @@ async function fetchDesignDoc(path: string, projectPath: string): Promise<string
   return data.content || '';
 }
 
+/** Prose styles for markdown rendering */
+const proseStyles = cn(
+  "prose prose-sm dark:prose-invert max-w-none",
+  "prose-headings:scroll-mt-20",
+  "prose-pre:bg-zinc-900 prose-pre:text-zinc-100",
+  "prose-code:text-sm prose-code:bg-zinc-100 dark:prose-code:bg-zinc-800",
+  "prose-code:px-1 prose-code:py-0.5 prose-code:rounded"
+);
+
 /**
  * Markdown renderer for design docs with syntax highlighting
+ * Uses MorphingDialog for smooth expand/collapse animation
  */
 export function DesignDocViewer({ designDocPath, epicId, projectPath, onFullScreenChange }: DesignDocViewerProps) {
   const [content, setContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isFullScreen, setIsFullScreen] = useState(false);
 
-  // Notify parent when fullscreen state changes
-  useEffect(() => {
-    onFullScreenChange?.(isFullScreen);
-  }, [isFullScreen, onFullScreenChange]);
+  const handleOpenChange = useCallback((isOpen: boolean) => {
+    onFullScreenChange?.(isOpen);
+  }, [onFullScreenChange]);
 
   useEffect(() => {
     const loadDoc = async () => {
@@ -74,8 +91,8 @@ export function DesignDocViewer({ designDocPath, epicId, projectPath, onFullScre
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center justify-center gap-2 text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            <span className="text-sm">Loading design document…</span>
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            <span className="text-sm">Loading design document...</span>
           </div>
         </CardContent>
       </Card>
@@ -95,45 +112,80 @@ export function DesignDocViewer({ designDocPath, epicId, projectPath, onFullScre
     );
   }
 
+  // Extract first heading or first line as preview
+  const firstLine = content.split('\n').find(line => line.trim()) || 'Design Document';
+  const previewText = firstLine.replace(/^#+\s*/, '').slice(0, 100);
+
   return (
-    <Card
-      className={cn(
-        "transition-all",
-        isFullScreen && "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] max-h-[80vh] z-50 overflow-auto overscroll-contain visible"
-      )}
+    <MorphingDialog
+      transition={{
+        type: 'spring',
+        stiffness: 200,
+        damping: 24,
+      }}
+      onOpenChange={handleOpenChange}
     >
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <div className="flex items-center gap-2">
-          <FileText className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-          <CardTitle className="text-sm font-semibold">Design Document</CardTitle>
-          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-            {epicId}
-          </Badge>
-        </div>
-        <button
-          onClick={() => setIsFullScreen(!isFullScreen)}
-          className="p-1 rounded-md hover:bg-accent transition-colors"
-          aria-label={isFullScreen ? "Exit full screen" : "Enter full screen"}
+      <MorphingDialogTrigger className="w-full text-left">
+        <Card className="cursor-pointer hover:bg-accent/50 transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <div className="flex items-center gap-2">
+              <FileText className="size-4 text-muted-foreground" aria-hidden="true" />
+              <MorphingDialogTitle>
+                <CardTitle className="text-sm font-semibold">Design Document</CardTitle>
+              </MorphingDialogTitle>
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                {epicId}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0 pb-4">
+            <MorphingDialogDescription
+              disableLayoutAnimation
+              variants={{
+                initial: { opacity: 1 },
+                animate: { opacity: 1 },
+                exit: { opacity: 0 },
+              }}
+            >
+              <p className="text-xs text-muted-foreground line-clamp-2">
+                {previewText}
+              </p>
+            </MorphingDialogDescription>
+          </CardContent>
+        </Card>
+      </MorphingDialogTrigger>
+
+      <MorphingDialogContainer>
+        <MorphingDialogContent
+          className="relative bg-background border rounded-lg shadow-lg w-[60vw] max-h-[80vh] overflow-hidden"
         >
-          {isFullScreen ? (
-            <Minimize2 className="h-4 w-4 text-muted-foreground" />
-          ) : (
-            <Maximize2 className="h-4 w-4 text-muted-foreground" />
-          )}
-        </button>
-      </CardHeader>
-      <CardContent className={cn(
-        "prose prose-sm dark:prose-invert max-w-none",
-        "prose-headings:scroll-mt-20",
-        "prose-pre:bg-zinc-900 prose-pre:text-zinc-100",
-        "prose-code:text-sm prose-code:bg-zinc-100 dark:prose-code:bg-zinc-800",
-        "prose-code:px-1 prose-code:py-0.5 prose-code:rounded",
-        isFullScreen ? "p-6 max-h-[calc(80vh-5rem)] overflow-auto" : "p-6"
-      )}>
-        <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
-          {content}
-        </ReactMarkdown>
-      </CardContent>
-    </Card>
+          <div className="p-6 overflow-auto max-h-[80vh]">
+            <div className="flex items-center gap-2 mb-4">
+              <FileText className="size-4 text-muted-foreground" aria-hidden="true" />
+              <MorphingDialogTitle>
+                <h2 className="text-sm font-semibold">Design Document</h2>
+              </MorphingDialogTitle>
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                {epicId}
+              </Badge>
+            </div>
+            <MorphingDialogDescription
+              disableLayoutAnimation
+              variants={{
+                initial: { opacity: 0, scale: 0.98 },
+                animate: { opacity: 1, scale: 1 },
+                exit: { opacity: 0, scale: 0.98 },
+              }}
+              className={proseStyles}
+            >
+              <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
+                {content}
+              </ReactMarkdown>
+            </MorphingDialogDescription>
+          </div>
+          <MorphingDialogClose className="absolute top-4 right-4" />
+        </MorphingDialogContent>
+      </MorphingDialogContainer>
+    </MorphingDialog>
   );
 }
