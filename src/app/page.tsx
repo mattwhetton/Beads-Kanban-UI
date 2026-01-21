@@ -7,6 +7,7 @@ import { ProjectCard } from "@/components/project-card";
 import { AddProjectDialog } from "@/components/add-project-dialog";
 import { ScanDirectoryDialog } from "@/components/scan-directory-dialog";
 import { useProjects } from "@/hooks/use-projects";
+import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button, ButtonArrow } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ export default function ProjectsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const { projects, isLoading, error, addProject, updateProjectTags } = useProjects();
+  const { toast } = useToast();
 
   // Get all unique tags across projects
   const allTags = useMemo(() => {
@@ -73,13 +75,46 @@ export default function ProjectsPage() {
   const hasActiveFilters = searchQuery.trim() !== "" || selectedTagIds.length > 0;
 
   const handleAddProject = async (input: { name: string; path: string }) => {
+    // Check for duplicate
+    const isDuplicate = projects.some(p => p.path === input.path);
+    if (isDuplicate) {
+      toast({
+        title: "Project already exists",
+        description: "This project is already in your dashboard.",
+        variant: "destructive",
+      });
+      throw new Error("Project already exists"); // Let the dialog know it failed
+    }
     await addProject(input);
   };
 
-  const handleAddMultipleProjects = async (projects: { name: string; path: string }[]) => {
-    // Add projects sequentially to avoid race conditions
-    for (const project of projects) {
+  const handleAddMultipleProjects = async (projectsToAdd: { name: string; path: string }[]) => {
+    // Filter out projects that already exist
+    const existingPaths = new Set(projects.map(p => p.path));
+    const newProjects = projectsToAdd.filter(p => !existingPaths.has(p.path));
+    const duplicateCount = projectsToAdd.length - newProjects.length;
+
+    // If all are duplicates, show error
+    if (newProjects.length === 0) {
+      toast({
+        title: "All projects already exist",
+        description: `${duplicateCount === 1 ? "This project is" : "All " + duplicateCount + " projects are"} already in your dashboard.`,
+        variant: "destructive",
+      });
+      throw new Error("All projects already exist");
+    }
+
+    // Add new projects
+    for (const project of newProjects) {
       await addProject(project);
+    }
+
+    // If some were duplicates, notify the user
+    if (duplicateCount > 0) {
+      toast({
+        title: "Some projects skipped",
+        description: `${duplicateCount} duplicate project${duplicateCount > 1 ? "s were" : " was"} skipped.`,
+      });
     }
   };
 
