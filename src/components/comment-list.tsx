@@ -122,7 +122,7 @@ export function CommentList({
         <div className="flex gap-2">
           <Input
             type="text"
-            placeholder="Add a comment\u2026"
+            placeholder="Add a comment…"
             aria-label="Add a comment"
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
@@ -135,7 +135,7 @@ export function CommentList({
             disabled={isSubmitting || !newComment.trim()}
             size="sm"
           >
-            {isSubmitting ? "Adding\u2026" : "Add"}
+            {isSubmitting ? "Adding…" : "Add"}
           </Button>
         </div>
         {error && (
