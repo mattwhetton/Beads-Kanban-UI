@@ -114,7 +114,7 @@ jobs:
           VERSION="${{ github.ref_name || inputs.version }}"
           VERSION="${VERSION#v}"  # Remove 'v' prefix
           cd npm
-          npm version $VERSION --no-git-tag-version
+          npm version $VERSION --no-git-tag-version --allow-same-version
 
       - name: Publish to npm
         run: npm publish
