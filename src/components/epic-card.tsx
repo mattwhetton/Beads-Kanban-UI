@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import type { Bead, Epic, EpicProgress } from "@/types";
 import { ChevronDown, ChevronRight, FileText, Layers, MessageSquare } from "lucide-react";
@@ -31,18 +31,18 @@ export interface EpicCardProps {
 }
 
 /**
- * Get priority badge color classes based on priority level
+ * Get priority badge color classes based on priority level (dark theme)
  */
 function getPriorityColor(priority: number): string {
   switch (priority) {
     case 0:
-      return "bg-red-500 text-white hover:bg-red-500/80";
+      return "bg-red-500/20 text-red-400 border-red-500/30";
     case 1:
-      return "bg-orange-500 text-white hover:bg-orange-500/80";
+      return "bg-orange-500/20 text-orange-400 border-orange-500/30";
     case 2:
-      return "bg-zinc-400 text-white hover:bg-zinc-400/80";
+      return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30";
     default:
-      return "bg-zinc-300 text-zinc-700 hover:bg-zinc-300/80";
+      return "bg-zinc-600/20 text-zinc-500 border-zinc-600/30";
   }
 }
 
@@ -75,14 +75,14 @@ function computeProgress(epic: Epic, allBeads: Bead[]): EpicProgress {
 }
 
 /**
- * Get progress bar color based on completion percentage
+ * Get progress bar indicator color based on completion percentage
  */
-function getProgressColor(percentage: number): string {
-  if (percentage === 100) return "bg-green-600";
-  if (percentage >= 75) return "bg-green-500";
-  if (percentage >= 50) return "bg-blue-500";
-  if (percentage >= 25) return "bg-amber-500";
-  return "bg-zinc-400";
+function getProgressIndicatorClass(percentage: number): string {
+  if (percentage === 100) return "[&>*]:bg-green-500";
+  if (percentage >= 75) return "[&>*]:bg-green-500";
+  if (percentage >= 50) return "[&>*]:bg-blue-500";
+  if (percentage >= 25) return "[&>*]:bg-amber-500";
+  return "[&>*]:bg-purple-500";
 }
 
 /**
@@ -115,24 +115,37 @@ export function EpicCard({
   const hasDesignDoc = !!epic.design_doc;
 
   return (
-    <Card
+    <div
       data-bead-id={epic.id}
+      role="button"
+      tabIndex={0}
       className={cn(
-        "cursor-pointer transition-all hover:shadow-lg",
-        "border-l-4 border-l-purple-500",
-        "bg-gradient-to-br from-background to-purple-50/30 dark:to-purple-950/10",
-        isSelected && "ring-2 ring-purple-500 ring-offset-2 shadow-lg"
+        "rounded-lg cursor-pointer p-4",
+        "bg-zinc-900/70 backdrop-blur-md",
+        "border border-zinc-800/60 border-l-4 border-l-purple-500",
+        "shadow-sm shadow-black/20",
+        "transition-[transform,box-shadow,border-color] duration-200",
+        "hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30",
+        "hover:border-zinc-700",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]",
+        isSelected && "ring-2 ring-purple-400 ring-offset-2 ring-offset-[#0a0a0a]"
       )}
       onClick={() => onSelect(epic)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(epic);
+        }
+      }}
     >
-      <div className="p-4 space-y-3">
+      <div className="space-y-3">
         {/* Header: Ticket # + Epic Icon + ID + Priority + Design Doc + Dependencies */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Layers className="h-4 w-4 text-purple-600" aria-hidden="true" />
-            <span className="text-xs font-mono text-muted-foreground">
+            <Layers className="h-4 w-4 text-purple-400" aria-hidden="true" />
+            <span className="text-xs font-mono text-zinc-400">
               {ticketNumber !== undefined && (
-                <span className="font-semibold text-foreground">#{ticketNumber}</span>
+                <span className="font-semibold text-white">#{ticketNumber}</span>
               )}
               {ticketNumber !== undefined && " "}
               {formatBeadId(epic.id)}
@@ -142,7 +155,7 @@ export function EpicCard({
             {hasDesignDoc && (
               <Badge
                 variant="outline"
-                className="text-[10px] px-1.5 py-0 border-purple-300 text-purple-700 bg-purple-50"
+                className="text-[10px] px-1.5 py-0 border-purple-500/30 text-purple-400 bg-purple-500/20"
               >
                 <FileText className="h-3 w-3 mr-0.5" aria-hidden="true" />
                 DESIGN
@@ -154,8 +167,9 @@ export function EpicCard({
               onNavigate={onNavigateToDependency}
             />
             <Badge
+              variant="outline"
               className={cn(
-                "text-[10px] px-1.5 py-0 border-transparent",
+                "text-[10px] px-1.5 py-0",
                 getPriorityColor(epic.priority)
               )}
             >
@@ -167,19 +181,19 @@ export function EpicCard({
         {/* Epic Badge */}
         <Badge
           variant="outline"
-          className="text-[10px] px-2 py-0.5 border-purple-300 text-purple-700 bg-purple-50 font-semibold"
+          className="text-[10px] px-2 py-0.5 border-purple-500/30 text-purple-400 bg-purple-500/20 font-semibold"
         >
           EPIC
         </Badge>
 
         {/* Title */}
-        <h3 className="font-bold text-base leading-tight text-purple-900 dark:text-purple-100">
+        <h3 className="font-bold text-base leading-tight text-purple-100">
           {truncate(epic.title, 60)}
         </h3>
 
         {/* Description */}
         {epic.description && (
-          <p className="text-xs text-muted-foreground leading-relaxed">
+          <p className="text-xs text-zinc-400 leading-relaxed">
             {truncate(epic.description, 100)}
           </p>
         )}
@@ -187,28 +201,20 @@ export function EpicCard({
         {/* Progress Bar */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">
+            <span className="text-zinc-400">
               Progress: {progress.completed}/{progress.total} completed
             </span>
-            <span className="font-semibold">{progressPercentage}%</span>
+            <span className="font-semibold text-zinc-300">{progressPercentage}%</span>
           </div>
-          <div
-            role="progressbar"
-            aria-valuenow={progressPercentage}
-            aria-valuemin={0}
-            aria-valuemax={100}
+          <Progress
+            value={progressPercentage}
             aria-label={`Epic progress: ${progress.completed} of ${progress.total} completed`}
-            className="w-full h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden"
-          >
-            <div
-              className={cn(
-                "h-full transition-all duration-300",
-                getProgressColor(progressPercentage)
-              )}
-              style={{ width: progressPercentage + '%' }}
-            />
-          </div>
-          <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+            className={cn(
+              "h-2 bg-zinc-800",
+              getProgressIndicatorClass(progressPercentage)
+            )}
+          />
+          <div className="flex items-center gap-3 text-[10px] text-zinc-500">
             <span className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-blue-500" aria-hidden="true" />
               {progress.inProgress} in progress
@@ -224,7 +230,7 @@ export function EpicCard({
 
         {/* Design Doc Preview */}
         {hasDesignDoc && projectPath && (
-          <div className="pt-2 border-t border-purple-200 dark:border-purple-900/30">
+          <div className="pt-2 border-t border-zinc-700">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -232,7 +238,7 @@ export function EpicCard({
               }}
               aria-expanded={isDesignPreviewExpanded}
               aria-label={`${isDesignPreviewExpanded ? 'Collapse' : 'Expand'} design preview`}
-              className="flex items-center gap-1 text-xs font-semibold text-purple-700 dark:text-purple-300 hover:underline mb-2"
+              className="flex items-center gap-1 text-xs font-semibold text-purple-400 hover:text-purple-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900 rounded mb-2"
             >
               {isDesignPreviewExpanded ? (
                 <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
@@ -252,7 +258,7 @@ export function EpicCard({
         )}
 
         {/* Children Preview/List */}
-        <div className="pt-2 border-t border-purple-200 dark:border-purple-900/30">
+        <div className="pt-2 border-t border-zinc-700">
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -260,7 +266,7 @@ export function EpicCard({
             }}
             aria-expanded={isExpanded}
             aria-label={`${isExpanded ? 'Collapse' : 'Expand'} child tasks`}
-            className="flex items-center gap-1 text-xs font-semibold text-purple-700 dark:text-purple-300 hover:underline mb-2"
+            className="flex items-center gap-1 text-xs font-semibold text-purple-400 hover:text-purple-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900 rounded mb-2"
           >
             {isExpanded ? (
               <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
@@ -287,6 +293,6 @@ export function EpicCard({
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 }
