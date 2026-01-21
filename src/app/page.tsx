@@ -2,15 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import { Settings } from "lucide-react";
+import Image from "next/image";
 import { ProjectCard } from "@/components/project-card";
 import { AddProjectDialog } from "@/components/add-project-dialog";
 import { useProjects } from "@/hooks/use-projects";
 import { Skeleton } from "@/components/ui/skeleton";
-
-// Dynamic import with SSR disabled for WebGL canvas component
-const Galaxy = dynamic(() => import("@/components/Galaxy"), { ssr: false });
 
 export default function ProjectsPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -21,36 +17,36 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="dark relative min-h-screen bg-[#0d0b14]">
-      {/* Galaxy Background - fixed, full-screen, z-0 */}
-      <div className="fixed inset-0 z-0 overflow-hidden">
-        <Galaxy
-          mouseInteraction={false}
-          mouseRepulsion={false}
-          density={0.2}
-          glowIntensity={0.2}
-          saturation={0.7}
-          hueShift={140}
-          twinkleIntensity={0.2}
-          rotationSpeed={0.05}
-          repulsionStrength={2}
-          autoCenterRepulsion={0}
-          starSpeed={0.2}
-          speed={0.4}
-        />
-      </div>
+    <div className="dark min-h-dvh bg-[#0a0a0a]">
+      {/* Navigation Bar */}
+      <nav className="sticky top-0 z-50 border-b border-zinc-800/50 bg-[#0a0a0a]/80 backdrop-blur-sm">
+        <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-6">
+          {/* Logo on left */}
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src="/logo.svg"
+              alt="BeadsUI"
+              width={120}
+              height={32}
+              className="h-8 w-auto"
+              priority
+            />
+          </Link>
 
-      {/* Settings Icon - fixed top-right, z-20 */}
-      <Link
-        href="/settings"
-        aria-label="Settings"
-        className="fixed right-6 top-6 z-20 rounded-md p-2 text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-      >
-        <Settings className="h-5 w-5" aria-hidden="true" />
-      </Link>
+          {/* Navigation links on right */}
+          <div className="flex items-center gap-4">
+            <Link
+              href="/settings"
+              className="rounded-md px-3 py-2 text-sm font-medium text-zinc-400 transition-[background-color,color] duration-150 hover:bg-zinc-800/50 hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]"
+            >
+              Settings
+            </Link>
+          </div>
+        </div>
+      </nav>
 
-      {/* Main Content */}
-      <main className="relative z-10 flex flex-col items-center px-6 py-16">
+      {/* Hero Section - pushed down with padding */}
+      <main className="flex flex-col items-center px-6 pt-32">
         {/* Centered Heading with Space Grotesk */}
         <h1 className="mb-12 text-center text-balance font-heading text-4xl font-bold tracking-tight text-white sm:text-5xl">
           Manage Your Beads Projects
@@ -60,7 +56,7 @@ export default function ProjectsPage() {
           {isLoading ? (
             <div role="status" aria-label="Loading projects" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="rounded-xl border bg-card/70 p-4 backdrop-blur-md">
+                <div key={i} className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-4">
                   <div className="mb-3 flex gap-1.5">
                     <Skeleton className="h-5 w-16" />
                     <Skeleton className="h-5 w-12" />
@@ -73,7 +69,7 @@ export default function ProjectsPage() {
               ))}
             </div>
           ) : error ? (
-            <div className="rounded-lg border border-red-800/50 bg-red-950/70 p-6 text-center backdrop-blur-md">
+            <div role="alert" className="rounded-lg border border-red-800/50 bg-red-950/70 p-6 text-center">
               <p className="text-red-400">Error loading projects: {error.message}</p>
               <p className="mt-2 text-sm text-red-500">
                 Make sure the Tauri backend is running.
@@ -81,7 +77,7 @@ export default function ProjectsPage() {
             </div>
           ) : projects.length === 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="rounded-lg border border-dashed border-zinc-700 bg-card/70 p-6 text-center text-zinc-400 backdrop-blur-md">
+              <div className="rounded-lg border border-dashed border-zinc-700 bg-zinc-900/70 p-6 text-center text-zinc-400">
                 <p>No projects yet</p>
                 <p className="mt-1 text-sm text-zinc-500">Click the button below to add a project</p>
               </div>
@@ -107,7 +103,7 @@ export default function ProjectsPage() {
       {/* FAB - Add Project, z-20 */}
       <button
         onClick={() => setIsAddDialogOpen(true)}
-        className="fixed bottom-6 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-zinc-100 text-zinc-900 shadow-lg hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-100 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+        className="fixed bottom-6 right-6 z-20 flex size-14 items-center justify-center rounded-full bg-zinc-100 text-zinc-900 shadow-lg hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-100 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]"
         aria-label="Add Project"
       >
         <svg
