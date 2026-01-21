@@ -25,14 +25,18 @@ export default function ProjectsPage() {
       {/* RippleGrid Background - fixed, full-screen, z-0 */}
       <div className="fixed inset-0 z-0 overflow-hidden">
         <RippleGrid
-          enableRainbow={false}
-          gridColor="#ffffff"
+          gridColor="#302a4c"
           rippleIntensity={0.05}
           gridSize={10}
-          gridThickness={15}
-          mouseInteraction={true}
-          mouseInteractionRadius={1.2}
-          opacity={0.8}
+          gridThickness={33}
+          fadeDistance={2.7}
+          vignetteStrength={3.5}
+          glowIntensity={0.5}
+          opacity={1}
+          gridRotation={0}
+          mouseInteractionRadius={0.8}
+          mouseInteraction={false}
+          enableRainbow={false}
         />
       </div>
 
