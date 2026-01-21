@@ -142,16 +142,14 @@ export function EpicCard({
               blockers={epic.blockers}
               onNavigate={onNavigateToDependency}
             />
+            <Badge
+              variant="outline"
+              className="text-[10px] px-2 py-0.5 border-purple-500/30 text-purple-400 bg-purple-500/20 font-semibold"
+            >
+              EPIC
+            </Badge>
           </div>
         </div>
-
-        {/* Epic Badge */}
-        <Badge
-          variant="outline"
-          className="text-[10px] px-2 py-0.5 border-purple-500/30 text-purple-400 bg-purple-500/20 font-semibold"
-        >
-          EPIC
-        </Badge>
 
         {/* Title */}
         <h3 className="font-bold text-base leading-tight text-purple-100">
