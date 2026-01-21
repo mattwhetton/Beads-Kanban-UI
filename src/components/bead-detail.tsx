@@ -118,7 +118,7 @@ export function BeadDetail({
   projectPath,
 }: BeadDetailProps) {
   const branchName = `bd-${formatBeadId(bead.id)}`;
-  const [isDesignDocExpanded, setIsDesignDocExpanded] = useState(true);
+  const [isDesignDocExpanded, setIsDesignDocExpanded] = useState(false);
   const hasDesignDoc = !!bead.design_doc;
 
   return (
