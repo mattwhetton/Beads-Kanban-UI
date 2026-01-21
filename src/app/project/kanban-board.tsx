@@ -247,8 +247,8 @@ export default function KanbanBoard() {
   // Redirect state while no project ID
   if (!projectId) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground">Redirecting...</p>
+      <div className="dark flex min-h-dvh items-center justify-center bg-[#0a0a0a]">
+        <p className="text-zinc-500">Redirecting…</p>
       </div>
     );
   }
@@ -256,8 +256,8 @@ export default function KanbanBoard() {
   // Show loading state
   if (projectLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-muted-foreground">Loading project...</div>
+      <div className="dark flex items-center justify-center min-h-dvh bg-[#0a0a0a]">
+        <div role="status" className="text-zinc-500">Loading project…</div>
       </div>
     );
   }
@@ -265,8 +265,8 @@ export default function KanbanBoard() {
   // Show project error state
   if (projectError) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen gap-4">
-        <div className="text-destructive">Error: {projectError.message}</div>
+      <div className="dark flex flex-col items-center justify-center min-h-dvh bg-[#0a0a0a] gap-4">
+        <div role="alert" className="text-red-400">Error: {projectError.message}</div>
         <Button variant="outline" asChild>
           <Link href="/">Back to projects</Link>
         </Button>
@@ -277,8 +277,8 @@ export default function KanbanBoard() {
   // Project not found
   if (!project) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen gap-4">
-        <div className="text-muted-foreground">Project not found</div>
+      <div className="dark flex flex-col items-center justify-center min-h-dvh bg-[#0a0a0a] gap-4">
+        <div className="text-zinc-500">Project not found</div>
         <Button variant="outline" asChild>
           <Link href="/">Back to projects</Link>
         </Button>
@@ -287,9 +287,9 @@ export default function KanbanBoard() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="dark min-h-dvh bg-[#0a0a0a] flex flex-col">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 border-b bg-background">
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-zinc-800 bg-[#0a0a0a]/80 backdrop-blur-sm px-4 py-3">
         {/* Left: Back button + Project name */}
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" asChild>
@@ -309,20 +309,21 @@ export default function KanbanBoard() {
         <div className="flex items-center gap-2">
           {/* Search Input with Clear Button */}
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search aria-hidden="true" className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
             <Input
               ref={searchInputRef}
               type="text"
-              placeholder="Search beads... (press /)"
+              aria-label="Search beads"
+              placeholder="Search beads… (press /)"
               value={filters.search}
               onChange={(e) => setFilters({ search: e.target.value })}
-              className="pl-8 pr-8 w-[200px]"
+              className="pl-8 pr-8 w-[200px] bg-zinc-900/50 border-zinc-800 text-zinc-100 placeholder:text-zinc-500"
             />
             {filters.search && (
               <button
                 type="button"
                 onClick={() => setFilters({ search: "" })}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 hover:text-zinc-100"
                 aria-label="Clear search"
               >
                 <X className="h-4 w-4" />
@@ -334,18 +335,22 @@ export default function KanbanBoard() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                variant={activeFilterCount > 0 ? "secondary" : "outline"}
+                variant="outline"
                 size="sm"
-                className="gap-1"
+                className={
+                  activeFilterCount > 0
+                    ? "gap-1 bg-zinc-800 text-zinc-100 border-zinc-700"
+                    : "gap-1 border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                }
               >
-                <Filter className="h-4 w-4" />
+                <Filter aria-hidden="true" className="h-4 w-4" />
                 Filter
                 {activeFilterCount > 0 && (
-                  <span className="ml-1 px-1.5 py-0.5 text-xs bg-primary text-primary-foreground rounded-full">
+                  <span className="ml-1 px-1.5 py-0.5 text-xs bg-zinc-600 text-zinc-100 rounded-full">
                     {activeFilterCount}
                   </span>
                 )}
-                <ChevronDown className="h-3 w-3" />
+                <ChevronDown aria-hidden="true" className="h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -429,11 +434,11 @@ export default function KanbanBoard() {
       <main className="flex-1 overflow-hidden p-4">
         {beadsLoading ? (
           <div className="flex items-center justify-center h-full">
-            <div className="text-muted-foreground">Loading beads...</div>
+            <div role="status" className="text-zinc-500">Loading beads…</div>
           </div>
         ) : beadsError ? (
           <div className="flex items-center justify-center h-full">
-            <div className="text-destructive">Error loading beads: {beadsError.message}</div>
+            <div role="alert" className="text-red-400">Error loading beads: {beadsError.message}</div>
           </div>
         ) : (
           <div className="grid grid-cols-4 gap-4 h-full">
