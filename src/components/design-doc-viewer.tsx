@@ -29,6 +29,8 @@ export interface DesignDocViewerProps {
   projectPath: string;
   /** Callback when fullscreen state changes */
   onFullScreenChange?: (isFullScreen: boolean) => void;
+  /** Whether the dialog should start in open state */
+  defaultOpen?: boolean;
 }
 
 /**
@@ -60,7 +62,7 @@ const proseStyles = cn(
  * Markdown renderer for design docs with syntax highlighting
  * Uses MorphingDialog for smooth expand/collapse animation
  */
-export function DesignDocViewer({ designDocPath, epicId, projectPath, onFullScreenChange }: DesignDocViewerProps) {
+export function DesignDocViewer({ designDocPath, epicId, projectPath, onFullScreenChange, defaultOpen }: DesignDocViewerProps) {
   const [content, setContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -124,6 +126,7 @@ export function DesignDocViewer({ designDocPath, epicId, projectPath, onFullScre
         damping: 24,
       }}
       onOpenChange={handleOpenChange}
+      defaultOpen={defaultOpen}
     >
       <MorphingDialogTrigger className="w-full text-left">
         <Card className="cursor-pointer hover:bg-accent/50 transition-colors">

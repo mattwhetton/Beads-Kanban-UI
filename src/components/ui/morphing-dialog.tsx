@@ -45,14 +45,16 @@ export type MorphingDialogProviderProps = {
   children: React.ReactNode;
   transition?: Transition;
   onOpenChange?: (isOpen: boolean) => void;
+  defaultOpen?: boolean;
 };
 
 function MorphingDialogProvider({
   children,
   transition,
   onOpenChange,
+  defaultOpen = false,
 }: MorphingDialogProviderProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   const uniqueId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null!);
 
@@ -82,11 +84,12 @@ export type MorphingDialogProps = {
   children: React.ReactNode;
   transition?: Transition;
   onOpenChange?: (isOpen: boolean) => void;
+  defaultOpen?: boolean;
 };
 
-function MorphingDialog({ children, transition, onOpenChange }: MorphingDialogProps) {
+function MorphingDialog({ children, transition, onOpenChange, defaultOpen }: MorphingDialogProps) {
   return (
-    <MorphingDialogProvider onOpenChange={onOpenChange}>
+    <MorphingDialogProvider onOpenChange={onOpenChange} defaultOpen={defaultOpen}>
       <MotionConfig transition={transition}>{children}</MotionConfig>
     </MorphingDialogProvider>
   );
