@@ -20,28 +20,26 @@ export default function ProjectsPage() {
     <div className="dark min-h-dvh bg-[#0a0a0a]">
       {/* Navigation Bar */}
       <nav className="sticky top-0 z-30 border-b border-zinc-800 bg-[#0a0a0a]/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-4">
-          {/* Logo on left */}
-          <Link href="/" className="flex items-center gap-2">
+        <div className="mx-auto flex max-w-[1200px] items-center justify-center gap-8 px-6 py-4">
+          {/* Logo - centered with settings */}
+          <Link href="/" className="flex items-center">
             <Image
               src="/logo.svg"
               alt="BeadsUI"
-              width={140}
-              height={40}
-              className="h-10 w-auto"
+              width={384}
+              height={256}
+              className="w-64 h-auto"
               priority
             />
           </Link>
 
-          {/* Navigation links on right */}
-          <div className="flex items-center gap-4">
-            <Link
-              href="/settings"
-              className="rounded-md px-3 py-2 text-sm font-medium text-zinc-400 transition-[background-color,color] duration-150 hover:bg-zinc-800/50 hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]"
-            >
-              Settings
-            </Link>
-          </div>
+          {/* Settings link - right next to logo */}
+          <Link
+            href="/settings"
+            className="rounded-md px-3 py-2 text-sm font-medium text-zinc-400 transition-[background-color,color] duration-150 hover:bg-zinc-800/50 hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]"
+          >
+            Settings
+          </Link>
         </div>
       </nav>
 
