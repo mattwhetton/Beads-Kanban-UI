@@ -36,7 +36,10 @@ export function DesignDocDialog({
 }: DesignDocDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[60vw] max-w-4xl max-h-[80vh] p-0">
+      <DialogContent
+        className="max-h-[80vh] p-0"
+        style={{ width: '60vw', maxWidth: '60vw' }}
+      >
         <DialogHeader className="px-6 pt-6 pb-3 border-b">
           <div className="flex items-center gap-2">
             <FileText className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
