@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Plus, ChevronDown, FolderPlus, FolderSearch, Github, Settings } from "lucide-react";
 import { ProjectCard } from "@/components/project-card";
 import { AddProjectDialog } from "@/components/add-project-dialog";
+import { ScanDirectoryDialog } from "@/components/scan-directory-dialog";
 import { useProjects } from "@/hooks/use-projects";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button, ButtonArrow } from "@/components/ui/button";
@@ -22,6 +23,13 @@ export default function ProjectsPage() {
 
   const handleAddProject = async (input: { name: string; path: string }) => {
     await addProject(input);
+  };
+
+  const handleAddMultipleProjects = async (projects: { name: string; path: string }[]) => {
+    // Add projects sequentially to avoid race conditions
+    for (const project of projects) {
+      await addProject(project);
+    }
   };
 
   return (
@@ -130,6 +138,13 @@ export default function ProjectsPage() {
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
         onAddProject={handleAddProject}
+      />
+
+      {/* Scan Directory Dialog */}
+      <ScanDirectoryDialog
+        open={isScanDialogOpen}
+        onOpenChange={setIsScanDialogOpen}
+        onAddProjects={handleAddMultipleProjects}
       />
     </div>
   );
