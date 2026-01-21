@@ -56,6 +56,7 @@ export function ProjectCard({
       onClick={handleCardClick}
       role="link"
       tabIndex={0}
+      aria-label={`View ${formatProjectName(name)} project`}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
