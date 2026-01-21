@@ -163,6 +163,12 @@ export const fs = {
   exists: (path: string) => fetchApi<{ exists: boolean }>(
     `/api/fs/exists?path=${encodeURIComponent(path)}`
   ),
+
+  openExternal: (path: string, target: 'vscode' | 'cursor' | 'finder') =>
+    fetchApi<{ success: boolean }>('/api/fs/open-external', {
+      method: 'POST',
+      body: JSON.stringify({ path, target }),
+    }),
 };
 
 /**

@@ -36,6 +36,15 @@ pub struct FsReadParams {
     pub project_path: String,
 }
 
+/// Request body for opening a path in an external application.
+#[derive(Debug, Deserialize)]
+pub struct OpenExternalRequest {
+    /// The path to open
+    pub path: String,
+    /// Target application: "vscode", "cursor", or "finder"
+    pub target: String,
+}
+
 /// A single directory entry.
 #[derive(Debug, Serialize)]
 pub struct DirectoryEntry {
@@ -252,6 +261,86 @@ pub async fn read_file(Query(params): Query<FsReadParams>) -> impl IntoResponse 
             "path": params.path
         })),
     )
+}
+
+/// POST /api/fs/open-external
+///
+/// Opens a path in an external application (VS Code, Cursor, or Finder/Explorer).
+///
+/// # Security constraints:
+/// - Path must be within user's home directory
+/// - Target must be one of: "vscode", "cursor", "finder"
+pub async fn open_external(Json(request): Json<OpenExternalRequest>) -> impl IntoResponse {
+    let path = PathBuf::from(&request.path);
+
+    // Security: Validate path is within allowed directories
+    if let Err(e) = validate_path_security(&path) {
+        return (
+            StatusCode::FORBIDDEN,
+            Json(serde_json::json!({ "error": e })),
+        );
+    }
+
+    // Check if path exists
+    if !path.exists() {
+        return (
+            StatusCode::NOT_FOUND,
+            Json(serde_json::json!({ "error": "Path does not exist" })),
+        );
+    }
+
+    // Execute the appropriate command based on target
+    let result = match request.target.as_str() {
+        "vscode" => {
+            // Use "code" command for VS Code
+            std::process::Command::new("code").arg(&path).spawn()
+        }
+        "cursor" => {
+            // Use "cursor" command for Cursor
+            std::process::Command::new("cursor").arg(&path).spawn()
+        }
+        "finder" => {
+            // Use the `open` crate for cross-platform support
+            // On macOS: opens Finder, on Linux: file manager, on Windows: Explorer
+            match open::that(&path) {
+                Ok(_) => {
+                    return (
+                        StatusCode::OK,
+                        Json(serde_json::json!({ "success": true })),
+                    );
+                }
+                Err(e) => {
+                    return (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(serde_json::json!({
+                            "error": format!("Failed to open: {}", e)
+                        })),
+                    );
+                }
+            }
+        }
+        _ => {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({
+                    "error": "Invalid target. Must be 'vscode', 'cursor', or 'finder'"
+                })),
+            );
+        }
+    };
+
+    match result {
+        Ok(_) => (
+            StatusCode::OK,
+            Json(serde_json::json!({ "success": true })),
+        ),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({
+                "error": format!("Failed to open: {}. Make sure the application is installed.", e)
+            })),
+        ),
+    }
 }
 
 #[cfg(test)]
