@@ -21,7 +21,7 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="dark relative min-h-screen">
+    <div className="dark relative min-h-screen bg-[#0d0b14]">
       {/* RippleGrid Background - fixed, full-screen, z-0 */}
       <div className="fixed inset-0 z-0 overflow-hidden">
         <RippleGrid
