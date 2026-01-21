@@ -10,7 +10,7 @@ import { useProjects } from "@/hooks/use-projects";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Dynamic import with SSR disabled for WebGL canvas component
-const RippleGrid = dynamic(() => import("@/components/RippleGrid"), { ssr: false });
+const Galaxy = dynamic(() => import("@/components/Galaxy"), { ssr: false });
 
 export default function ProjectsPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -22,21 +22,21 @@ export default function ProjectsPage() {
 
   return (
     <div className="dark relative min-h-screen bg-[#0d0b14]">
-      {/* RippleGrid Background - fixed, full-screen, z-0 */}
+      {/* Galaxy Background - fixed, full-screen, z-0 */}
       <div className="fixed inset-0 z-0 overflow-hidden">
-        <RippleGrid
-          gridColor="#302a4c"
-          rippleIntensity={0.05}
-          gridSize={10}
-          gridThickness={33}
-          fadeDistance={2.7}
-          vignetteStrength={3.5}
-          glowIntensity={0.5}
-          opacity={1}
-          gridRotation={0}
-          mouseInteractionRadius={0.8}
+        <Galaxy
           mouseInteraction={false}
-          enableRainbow={false}
+          mouseRepulsion={false}
+          density={0.2}
+          glowIntensity={0.2}
+          saturation={0.7}
+          hueShift={140}
+          twinkleIntensity={0.2}
+          rotationSpeed={0.05}
+          repulsionStrength={2}
+          autoCenterRepulsion={0}
+          starSpeed={0.2}
+          speed={0.4}
         />
       </div>
 
