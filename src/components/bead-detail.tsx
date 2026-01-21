@@ -129,6 +129,7 @@ export function BeadDetail({
           "w-full sm:max-w-lg md:max-w-xl overflow-y-auto",
           isDesignDocFullScreen && "invisible"
         )}
+        overlayClassName={isDesignDocFullScreen ? "invisible pointer-events-none" : undefined}
       >
         {/* Header with Back button */}
         <div className="flex items-center justify-between mb-6">
