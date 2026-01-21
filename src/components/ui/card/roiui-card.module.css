@@ -10,6 +10,8 @@
   position: relative;
   justify-content: space-between;
   box-shadow: 0 1px 3px hsl(var(--foreground) / 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .header {

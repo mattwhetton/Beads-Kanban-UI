@@ -22,7 +22,7 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="relative min-h-screen">
+    <div className="dark relative min-h-screen">
       {/* Beams Background - fixed, full-screen, z-0 */}
       <div className="fixed inset-0 z-0">
         <Beams
@@ -41,7 +41,7 @@ export default function ProjectsPage() {
       <Link
         href="/settings"
         aria-label="Settings"
-        className="fixed right-6 top-6 z-20 rounded-md p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2"
+        className="fixed right-6 top-6 z-20 rounded-md p-2 text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
       >
         <Settings className="h-5 w-5" aria-hidden="true" />
       </Link>
@@ -49,7 +49,7 @@ export default function ProjectsPage() {
       {/* Main Content */}
       <main className="relative z-10 flex flex-col items-center px-6 py-16">
         {/* Centered Heading with Space Grotesk */}
-        <h1 className="mb-12 text-center text-balance font-heading text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl">
+        <h1 className="mb-12 text-center text-balance font-heading text-4xl font-bold tracking-tight text-white sm:text-5xl">
           Manage Your Beads Projects
         </h1>
 
@@ -57,7 +57,7 @@ export default function ProjectsPage() {
           {isLoading ? (
             <div role="status" aria-label="Loading projects" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="rounded-xl border bg-white/80 p-4 backdrop-blur-sm">
+                <div key={i} className="rounded-xl border bg-card/70 p-4 backdrop-blur-md">
                   <div className="mb-3 flex gap-1.5">
                     <Skeleton className="h-5 w-16" />
                     <Skeleton className="h-5 w-12" />
@@ -70,17 +70,17 @@ export default function ProjectsPage() {
               ))}
             </div>
           ) : error ? (
-            <div className="rounded-lg border border-red-200 bg-red-50/90 p-6 text-center backdrop-blur-sm">
-              <p className="text-red-600">Error loading projects: {error.message}</p>
+            <div className="rounded-lg border border-red-800/50 bg-red-950/70 p-6 text-center backdrop-blur-md">
+              <p className="text-red-400">Error loading projects: {error.message}</p>
               <p className="mt-2 text-sm text-red-500">
                 Make sure the Tauri backend is running.
               </p>
             </div>
           ) : projects.length === 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="rounded-lg border border-dashed border-zinc-300 bg-white/80 p-6 text-center text-zinc-500 backdrop-blur-sm">
+              <div className="rounded-lg border border-dashed border-zinc-700 bg-card/70 p-6 text-center text-zinc-400 backdrop-blur-md">
                 <p>No projects yet</p>
-                <p className="mt-1 text-sm">Click the button below to add a project</p>
+                <p className="mt-1 text-sm text-zinc-500">Click the button below to add a project</p>
               </div>
             </div>
           ) : (
@@ -103,7 +103,7 @@ export default function ProjectsPage() {
       {/* FAB - Add Project, z-20 */}
       <button
         onClick={() => setIsAddDialogOpen(true)}
-        className="fixed bottom-6 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2"
+        className="fixed bottom-6 right-6 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-zinc-100 text-zinc-900 shadow-lg hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-100 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
         aria-label="Add Project"
       >
         <svg

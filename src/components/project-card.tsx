@@ -87,25 +87,25 @@ export function ProjectCard({
         </RoiuiCardHeader>
         <RoiuiCardContent>
           {totalBeads > 0 ? (
-            <p className="text-sm text-zinc-600">
-              <span className="text-blue-600">{beadCounts.open} open</span>
+            <p className="text-sm text-zinc-400">
+              <span className="text-blue-400">{beadCounts.open} open</span>
               {beadCounts.inreview > 0 && (
                 <>
                   {" "}
-                  <span className="text-zinc-400">·</span>{" "}
-                  <span className="text-purple-600">{beadCounts.inreview} in review</span>
+                  <span className="text-zinc-500">·</span>{" "}
+                  <span className="text-purple-400">{beadCounts.inreview} in review</span>
                 </>
               )}
               {beadCounts.closed > 0 && (
                 <>
                   {" "}
-                  <span className="text-zinc-400">·</span>{" "}
-                  <span className="text-green-600">{beadCounts.closed} closed</span>
+                  <span className="text-zinc-500">·</span>{" "}
+                  <span className="text-green-400">{beadCounts.closed} closed</span>
                 </>
               )}
             </p>
           ) : (
-            <p className="text-sm text-zinc-400">No tasks yet</p>
+            <p className="text-sm text-zinc-500">No tasks yet</p>
           )}
         </RoiuiCardContent>
       </RoiuiCard>
