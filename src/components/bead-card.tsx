@@ -1,6 +1,5 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { Bead } from "@/types";
@@ -17,23 +16,24 @@ export interface BeadCardProps {
 
 /**
  * Get priority badge color classes based on priority level
- * P0=red-500, P1=orange-500, P2=zinc-400, P3/P4=zinc-300
+ * Dark theme variant with semi-transparent backgrounds
  */
 function getPriorityColor(priority: number): string {
   switch (priority) {
     case 0:
-      return "bg-red-500 text-white hover:bg-red-500/80";
+      return "bg-red-500/20 text-red-400 border border-red-500/30";
     case 1:
-      return "bg-orange-500 text-white hover:bg-orange-500/80";
+      return "bg-orange-500/20 text-orange-400 border border-orange-500/30";
     case 2:
-      return "bg-zinc-400 text-white hover:bg-zinc-400/80";
+      return "bg-zinc-500/20 text-zinc-400 border border-zinc-500/30";
     default:
-      return "bg-zinc-300 text-zinc-700 hover:bg-zinc-300/80";
+      return "bg-zinc-600/20 text-zinc-500 border border-zinc-600/30";
   }
 }
 
 /**
  * Get branch badge color based on ahead/behind status
+ * Dark theme variant with semi-transparent backgrounds
  * Green: ahead only (has new commits, up to date with main)
  * Yellow: behind only (main has new commits)
  * Red: diverged (both ahead and behind)
@@ -44,13 +44,13 @@ function getBranchBadgeColor(status: BranchStatus): string {
 
   if (ahead > 0 && behind > 0) {
     // Diverged - red
-    return "border-red-600 text-red-600 bg-red-50";
+    return "bg-red-500/10 text-red-400 border-red-600/30";
   } else if (behind > 0) {
     // Behind main - yellow
-    return "border-yellow-600 text-yellow-600 bg-yellow-50";
+    return "bg-yellow-500/10 text-yellow-400 border-yellow-600/30";
   } else {
     // Ahead only or up to date - green
-    return "border-green-600 text-green-600 bg-green-50";
+    return "bg-green-500/10 text-green-400 border-green-600/30";
   }
 }
 
@@ -95,7 +95,7 @@ function isBlocked(bead: Bead): boolean {
  */
 function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength).trim() + "...";
+  return text.slice(0, maxLength).trim() + "…";
 }
 
 /**
@@ -119,22 +119,37 @@ export function BeadCard({ bead, ticketNumber, branchStatus, isSelected = false,
   const branchExists = branchStatus?.exists ?? false;
 
   return (
-    <Card
+    <div
       data-bead-id={bead.id}
+      role="button"
+      tabIndex={0}
+      aria-label={`Select bead: ${bead.title}`}
       className={cn(
-        "cursor-pointer transition-all hover:shadow-md",
-        "border-l-4",
-        blocked ? "border-l-red-500" : "border-l-transparent",
-        isSelected && "ring-2 ring-primary ring-offset-2 shadow-md"
+        "rounded-lg cursor-pointer p-4",
+        "bg-zinc-900/70 backdrop-blur-md",
+        "border border-zinc-800/60",
+        "shadow-sm shadow-black/20",
+        "transition-[transform,box-shadow,border-color] duration-200",
+        "hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30",
+        "hover:border-zinc-700",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]",
+        blocked ? "border-l-4 border-l-red-500" : "border-l-4 border-l-transparent",
+        isSelected && "ring-2 ring-zinc-400 ring-offset-2 ring-offset-[#0a0a0a]"
       )}
       onClick={() => onSelect(bead)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(bead);
+        }
+      }}
     >
-      <div className="p-4 space-y-3">
+      <div className="space-y-3">
         {/* Header: Ticket # + ID + Priority + Blocked badge */}
         <div className="flex items-center justify-between">
-          <span className="text-xs font-mono text-muted-foreground">
+          <span className="text-xs font-mono text-zinc-500">
             {ticketNumber !== undefined && (
-              <span className="font-semibold text-foreground">#{ticketNumber}</span>
+              <span className="font-semibold text-zinc-100">#{ticketNumber}</span>
             )}
             {ticketNumber !== undefined && " "}
             {formatBeadId(bead.id)}
@@ -142,15 +157,14 @@ export function BeadCard({ bead, ticketNumber, branchStatus, isSelected = false,
           <div className="flex items-center gap-1.5">
             {blocked && (
               <Badge
-                variant="destructive"
-                className="text-[10px] px-1.5 py-0"
+                className="text-[10px] px-1.5 py-0 bg-red-500/20 text-red-400 border border-red-500/30"
               >
                 BLOCKED
               </Badge>
             )}
             <Badge
               className={cn(
-                "text-[10px] px-1.5 py-0 border-transparent",
+                "text-[10px] px-1.5 py-0",
                 getPriorityColor(bead.priority)
               )}
             >
@@ -160,13 +174,13 @@ export function BeadCard({ bead, ticketNumber, branchStatus, isSelected = false,
         </div>
 
         {/* Title */}
-        <h3 className="font-semibold text-sm leading-tight">
+        <h3 className="font-semibold text-sm leading-tight text-zinc-100">
           {truncate(bead.title, 60)}
         </h3>
 
         {/* Description (truncated, muted) */}
         {bead.description && (
-          <p className="text-xs text-muted-foreground leading-relaxed">
+          <p className="text-xs text-zinc-400 leading-relaxed">
             {truncate(bead.description, 80)}
           </p>
         )}
@@ -174,8 +188,8 @@ export function BeadCard({ bead, ticketNumber, branchStatus, isSelected = false,
         {/* Footer: comment count */}
         {commentCount > 0 && (
           <div className="flex items-center pt-1">
-            <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-              <MessageSquare className="h-3 w-3" />
+            <span className="flex items-center gap-1 text-[10px] text-zinc-500">
+              <MessageSquare className="h-3 w-3" aria-hidden="true" />
               {commentCount} {commentCount === 1 ? "comment" : "comments"}
             </span>
           </div>
@@ -191,12 +205,12 @@ export function BeadCard({ bead, ticketNumber, branchStatus, isSelected = false,
                 getBranchBadgeColor(branchStatus)
               )}
             >
-              <GitBranch className="h-3 w-3 mr-1" />
+              <GitBranch className="h-3 w-3 mr-1" aria-hidden="true" />
               {formatBranchStatus(bead.id, branchStatus)}
             </Badge>
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 }
