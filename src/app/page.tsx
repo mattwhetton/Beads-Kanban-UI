@@ -2,13 +2,22 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Plus, ChevronDown, FolderPlus, FolderSearch } from "lucide-react";
 import { ProjectCard } from "@/components/project-card";
 import { AddProjectDialog } from "@/components/add-project-dialog";
 import { useProjects } from "@/hooks/use-projects";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button, ButtonArrow } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function ProjectsPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isScanDialogOpen, setIsScanDialogOpen] = useState(false);
   const { projects, isLoading, error, addProject, updateProjectTags } = useProjects();
 
   const handleAddProject = async (input: { name: string; path: string }) => {
@@ -37,6 +46,28 @@ export default function ProjectsPage() {
         </h1>
 
         <div className="w-full max-w-[1200px]">
+          {/* Add Project Dropdown */}
+          <div className="mb-6 flex justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="mono" size="md">
+                  <Plus aria-hidden="true" />
+                  Add Project
+                  <ButtonArrow icon={ChevronDown} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => setIsAddDialogOpen(true)}>
+                  <FolderPlus aria-hidden="true" />
+                  Add Project
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setIsScanDialogOpen(true)}>
+                  <FolderSearch aria-hidden="true" />
+                  Scan Directory
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           {isLoading ? (
             <div role="status" aria-label="Loading projects" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3].map((i) => (
@@ -63,7 +94,7 @@ export default function ProjectsPage() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div className="rounded-lg border border-dashed border-zinc-700 bg-zinc-900/70 p-6 text-center text-zinc-400">
                 <p>No projects yet</p>
-                <p className="mt-1 text-sm text-zinc-500">Click the button below to add a project</p>
+                <p className="mt-1 text-sm text-zinc-500">Click the Add Project button above to get started</p>
               </div>
             </div>
           ) : (
@@ -83,29 +114,6 @@ export default function ProjectsPage() {
           )}
         </div>
       </main>
-
-      {/* FAB - Add Project, z-20 */}
-      <button
-        onClick={() => setIsAddDialogOpen(true)}
-        className="fixed bottom-6 right-6 z-20 flex size-14 items-center justify-center rounded-full bg-zinc-100 text-zinc-900 shadow-lg hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-100 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0a]"
-        aria-label="Add Project"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M5 12h14" />
-          <path d="M12 5v14" />
-        </svg>
-      </button>
 
       {/* Add Project Dialog */}
       <AddProjectDialog
