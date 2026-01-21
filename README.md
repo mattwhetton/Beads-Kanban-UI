@@ -1,49 +1,67 @@
 # Beads Kanban UI
 
-A visual Kanban board interface for the [beads](https://github.com/steveyegge/beads) CLI task tracker. View and manage your beads in a clean, intuitive drag-and-drop interface.
+**See all your tasks at a glance. Drag, organize, and track progress across projects—no CLI required.**
 
-> **Works great with [Beads Orchestration](https://github.com/AvivK5498/Claude-Code-Beads-Orchestration)** - A multi-agent orchestration framework for Claude Code that uses beads for git-native task tracking with mandatory code review gates.
+A beautiful visual Kanban board for the [Beads CLI](https://github.com/steveyegge/beads) task tracker. Beads stores tasks as git-native files (`.beads/issues.jsonl`), and this UI gives you the dashboard and board you've been missing.
 
-## Features
+> **Works great with [Beads Orchestration](https://github.com/AvivK5498/Claude-Code-Beads-Orchestration)** — A multi-agent orchestration framework for Claude Code that uses beads for git-native task tracking with mandatory code review gates.
 
-- **Multi-project support** - Manage multiple beads projects from a single dashboard
-- **Kanban board** - Visual columns for Open, In Progress, In Review, and Closed statuses
-- **Bead details** - View descriptions, comments, and activity timeline
-- **Search & filter** - Filter by status, priority, or agent assignment
-- **Git integration** - See branch status for each bead
-- **Real-time updates** - File watcher syncs changes automatically
-- **Project tagging** - Organize projects with custom colored tags
+## See It in Action
 
-## Prerequisites
+**Dashboard** — All your projects in one place with status at a glance:
+![Dashboard with multi-project view, status donuts, and tags](Screenshots/dashboard.png)
 
-- **Node.js** 18+ and npm
-- **Rust** (for the backend server)
-- **beads CLI** - Install via:
-  - macOS: `brew install steveyegge/beads/bd`
-  - npm: `npm install -g @beads/bd`
-  - Go: `go install github.com/steveyegge/beads/cmd/bd@latest`
+**Kanban Board** — Organize tasks across Open → In Progress → In Review → Closed:
+![Kanban board showing epic groups and task cards with git branch info](Screenshots/kanban-board.png)
 
-## Quick Start
+**Bead Details** — Dive into any task with full context and subtasks:
+![Bead detail panel showing epic with progress bar and subtasks](Screenshots/bead-detail.png)
 
-### 1. Install Dependencies
+## What You Get
 
+- **Multi-project dashboard** — Manage all your beads projects in one place with status donut charts
+- **Kanban board** — Drag-and-drop columns: Open → In Progress → In Review → Closed
+- **Epic support** — Group related tasks, track progress with bars, view all subtasks
+- **Real-time sync** — File watcher auto-updates when beads files change on disk
+- **Git integration** — See branch status for each task at a glance
+- **Search & filter** — Quick filters for status, priority, owner, and tags
+- **Project tagging** — Organize with colored tags and filter by them
+
+## Quick Start (3 steps)
+
+### 1. Prerequisites
 ```bash
-# Install frontend dependencies
-npm install
+# Install beads CLI
+brew install steveyegge/beads/bd
 
-# Build the Rust backend (first time only)
-cd server && cargo build --release && cd ..
+# You'll also need Node.js 18+ and Rust
 ```
 
-### 2. Run in Development Mode
-
+### 2. Install and Run
 ```bash
-# Run both frontend and backend concurrently
+git clone https://github.com/AvivK5498/beads-kanban-ui
+cd beads-kanban-ui
+npm install
 npm run dev:full
 ```
 
-Or run them separately:
+### 3. Open in Browser
+Navigate to **`http://localhost:3007`** and add your beads projects.
 
+That's it! The app watches for file changes and syncs in real-time.
+
+---
+
+## Detailed Setup
+
+### Development Mode
+
+Run both frontend and backend together:
+```bash
+npm run dev:full
+```
+
+Or run separately:
 ```bash
 # Terminal 1: Frontend (http://localhost:3007)
 npm run dev
@@ -52,24 +70,51 @@ npm run dev
 npm run server:dev
 ```
 
-### 3. Open the UI
-
-Navigate to `http://localhost:3007` (dev mode) or `http://localhost:3008` (production build).
-
-## Production Build
-
+The Rust backend builds automatically on first run. If you need to rebuild it:
 ```bash
-# Build the Next.js frontend
+cd server && cargo build --release && cd ..
+```
+
+### Production Build
+
+For a single binary deployment:
+```bash
 npm run build
-
-# Build the Rust server (embeds the frontend)
 npm run server:build
-
-# Run the production server
 ./server/target/release/beads-server
 ```
 
-The production server embeds the frontend static files and serves everything from a single binary on port 3008.
+The production server embeds the frontend and serves everything from a single binary on port 3008.
+
+---
+
+## How It Works
+
+### Dashboard
+1. Click **+ Add Project** and select a directory with a `.beads/` folder
+2. See all projects with status donuts showing task distribution
+3. Click any project to view its Kanban board
+
+### Kanban Board
+1. Tasks are organized by status: Open, In Progress, In Review, Closed
+2. Drag cards between columns to update status
+3. Click any task to see full details, comments, and related subtasks (for epics)
+
+### Features in Detail
+
+**Search & Filter**
+- Quick filters for status, priority, and assigned owner
+- Project tags for organization
+
+**Real-time Sync**
+- The app watches `.beads/issues.jsonl` and updates automatically
+- No refresh needed—changes appear instantly
+
+**Git Integration**
+- Each task shows its git branch status
+- Useful for tracking which branch a task lives on
+
+---
 
 ## Architecture
 
@@ -92,34 +137,17 @@ The production server embeds the frontend static files and serves everything fro
               └─────────────────────────┘
 ```
 
-## API Endpoints
+### Tech Stack
+- **Frontend**: Next.js 14, React 18, Tailwind CSS, shadcn/ui
+- **Backend**: Rust with Axum framework
+- **Database**: SQLite for project metadata
+- **File Sync**: Real-time watcher for `.beads/` changes
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/health` | GET | Health check |
-| `/api/projects` | GET/POST | List or create projects |
-| `/api/projects/:id` | GET/PUT/DELETE | Manage single project |
-| `/api/beads?path=` | GET | Read beads from project path |
-| `/api/beads/comment` | POST | Add comment to a bead |
-| `/api/bd/command` | POST | Execute beads CLI command |
-| `/api/git/branch-status` | GET | Get git branch status |
-| `/api/fs/list` | GET | List directory contents |
-| `/api/fs/exists` | GET | Check if path exists |
-| `/api/watch/beads` | GET | SSE endpoint for file changes |
-
-## Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `3008` | Backend server port |
-| `NEXT_PUBLIC_BACKEND_URL` | `http://localhost:3008` | Backend URL for frontend |
-
-## Project Structure
-
+### Project Structure
 ```
 beads-kanban-ui/
 ├── src/
-│   ├── app/                 # Next.js pages
+│   ├── app/                 # Next.js pages and routes
 │   │   ├── page.tsx         # Projects dashboard
 │   │   ├── project/         # Kanban board view
 │   │   └── settings/        # Settings page
@@ -130,32 +158,46 @@ beads-kanban-ui/
 │   │   └── bead-detail.tsx
 │   ├── hooks/               # Custom React hooks
 │   ├── lib/                 # Utilities and API client
-│   └── types/               # TypeScript types
+│   └── types/               # TypeScript type definitions
 ├── server/
 │   └── src/
-│       ├── main.rs          # Axum server entry
-│       ├── db.rs            # SQLite database
+│       ├── main.rs          # Axum server entry point
+│       ├── db.rs            # SQLite database layer
 │       └── routes/          # API route handlers
 └── package.json
 ```
 
-## Usage
+---
 
-1. **Add a project** - Click the + button on the dashboard and select a directory containing a `.beads/` folder
+## API Endpoints
 
-2. **View Kanban board** - Click on a project card to see all beads organized by status
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/health` | GET | Server health check |
+| `/api/projects` | GET/POST | List or create projects |
+| `/api/projects/:id` | GET/PUT/DELETE | Manage individual projects |
+| `/api/beads?path=` | GET | Read beads from a project path |
+| `/api/beads/comment` | POST | Add comment to a bead |
+| `/api/bd/command` | POST | Execute beads CLI commands |
+| `/api/git/branch-status` | GET | Get git branch status for a bead |
+| `/api/fs/list` | GET | List directory contents |
+| `/api/fs/exists` | GET | Check if a path exists |
+| `/api/watch/beads` | GET | Server-sent events for file changes |
 
-3. **Filter beads** - Use the search bar or filter dropdown to find specific beads
+### Environment Variables
 
-4. **View bead details** - Click on a bead card to see full description, comments, and activity
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `3008` | Backend server port |
+| `NEXT_PUBLIC_BACKEND_URL` | `http://localhost:3008` | Backend URL for frontend API calls |
 
-5. **Add comments** - Use the comment input in the bead detail view (executes `bd comment`)
+---
 
-## Development
+## Development Commands
 
 ```bash
-# Run linter
-npm run lint
+# Run both frontend and backend
+npm run dev:full
 
 # Run frontend only
 npm run dev
@@ -163,12 +205,22 @@ npm run dev
 # Run backend only
 npm run server:dev
 
-# Build frontend for production
+# Build for production
 npm run build
-
-# Build backend for production
 npm run server:build
+
+# Linting
+npm run lint
 ```
+
+---
+
+## Related Projects
+
+- **[Beads CLI](https://github.com/steveyegge/beads)** — Git-native issue tracker (the core tool this UI wraps)
+- **[Beads Orchestration](https://github.com/AvivK5498/Claude-Code-Beads-Orchestration)** — Multi-agent orchestration framework for Claude Code using beads
+
+---
 
 ## License
 
