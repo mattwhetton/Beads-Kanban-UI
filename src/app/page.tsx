@@ -122,7 +122,7 @@ export default function ProjectsPage() {
     <div className="dark min-h-dvh bg-[#0a0a0a]">
       {/* Navigation Bar */}
       <nav className="sticky top-0 z-30 border-b border-zinc-800 bg-[#0a0a0a]/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-2">
+        <div className="mx-auto flex max-w-[1200px] items-center justify-center gap-4 px-6 py-2">
           <a
             href="https://github.com/AvivK5498/Beads-Kanban-UI"
             target="_blank"
@@ -304,6 +304,19 @@ export default function ProjectsPage() {
           )}
         </div>
       </main>
+
+      {/* Floating Beads CLI link */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30">
+        <a
+          href="https://github.com/steveyegge/beads"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900/90 px-4 py-2 text-sm text-zinc-400 backdrop-blur-sm transition-colors hover:border-zinc-600 hover:text-zinc-200"
+        >
+          <Github className="h-4 w-4" aria-hidden="true" />
+          <span>Beads CLI</span>
+        </a>
+      </div>
 
       {/* Add Project Dialog */}
       <AddProjectDialog
