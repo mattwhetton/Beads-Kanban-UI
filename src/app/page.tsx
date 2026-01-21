@@ -83,7 +83,6 @@ export default function ProjectsPage() {
                 name={project.name}
                 path={project.path}
                 tags={project.tags}
-                lastOpened={project.lastOpened}
                 onTagsChange={(tags) => updateProjectTags(project.id, tags)}
               />
             ))}
