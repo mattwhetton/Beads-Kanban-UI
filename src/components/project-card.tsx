@@ -61,10 +61,7 @@ export function ProjectCard({
           <RoiuiCardAction>
             <div
               className="flex min-w-0 flex-wrap items-center gap-1.5"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
+              onClick={(e) => e.stopPropagation()}
               onKeyDown={(e) => e.stopPropagation()}
             >
               {tags.map((tag) => (

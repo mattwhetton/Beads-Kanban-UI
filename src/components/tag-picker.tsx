@@ -109,9 +109,20 @@ export function TagPicker({
         <Button
           variant="ghost"
           size="sm"
-          className={cn("h-6 w-6 p-0 rounded-full hover:bg-zinc-100", className)}
+          className={cn(
+            "h-6 w-6 p-0 rounded-full",
+            "hover:bg-zinc-100 dark:hover:bg-zinc-700",
+            className
+          )}
+          onClick={(e) => {
+            // Prevent navigation from parent Link component
+            e.preventDefault();
+            e.stopPropagation();
+            // Manually toggle the popover since preventDefault blocks Radix's default handling
+            setIsOpen((prev) => !prev);
+          }}
         >
-          <Plus className="h-4 w-4 text-zinc-400" />
+          <Plus className="h-4 w-4 text-zinc-400" aria-hidden="true" />
           <span className="sr-only">Add tag</span>
         </Button>
       </PopoverTrigger>
@@ -128,12 +139,14 @@ export function TagPicker({
                 <button
                   key={tag.id}
                   className={cn(
-                    "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-zinc-100",
+                    "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors",
+                    "hover:bg-zinc-100 dark:hover:bg-zinc-700",
                     isLoading && "opacity-50 pointer-events-none"
                   )}
                   onClick={() => handleToggleTag(tag)}
                   disabled={isLoading}
                   type="button"
+                  aria-pressed={isTagSelected(tag.id)}
                 >
                   <div
                     className="h-3 w-3 rounded-full shrink-0"
@@ -141,7 +154,7 @@ export function TagPicker({
                   />
                   <span className="flex-1 truncate">{tag.name}</span>
                   {isTagSelected(tag.id) && (
-                    <Check className="h-4 w-4 text-green-600 shrink-0" />
+                    <Check className="h-4 w-4 text-green-600 shrink-0" aria-hidden="true" />
                   )}
                 </button>
               ))}
@@ -149,7 +162,7 @@ export function TagPicker({
           )}
 
           {/* Divider */}
-          {allTags.length > 0 && <div className="border-t border-zinc-200" />}
+          {allTags.length > 0 && <div className="border-t border-zinc-200 dark:border-zinc-700" />}
 
           {/* Create new tag section */}
           {isCreating ? (
@@ -163,6 +176,7 @@ export function TagPicker({
                   value={newTagName}
                   onChange={(e) => setNewTagName(e.target.value)}
                   placeholder="Tag name"
+                  aria-label="Tag name"
                   className="h-8 text-sm"
                   autoFocus
                   onKeyDown={(e) => {
@@ -189,18 +203,19 @@ export function TagPicker({
                   variant="ghost"
                   className="h-7"
                   onClick={handleCancelCreate}
+                  aria-label="Cancel"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4" aria-hidden="true" />
                 </Button>
               </div>
             </div>
           ) : (
             <button
-              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-zinc-600 transition-colors hover:bg-zinc-100"
+              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-zinc-600 dark:text-zinc-400 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700"
               onClick={() => setIsCreating(true)}
               type="button"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4" aria-hidden="true" />
               <span>Create new tag</span>
             </button>
           )}
