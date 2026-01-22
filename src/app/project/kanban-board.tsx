@@ -7,6 +7,15 @@ import { useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { QuickFilterBar } from "@/components/quick-filter-bar";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogClose,
+} from "@/components/ui/alert-dialog";
 import { KanbanColumn } from "@/components/kanban-column";
 import { BeadDetail } from "@/components/bead-detail";
 import { CommentList } from "@/components/comment-list";
@@ -15,7 +24,13 @@ import { EditableProjectName } from "@/components/editable-project-name";
 import { useBeads } from "@/hooks/use-beads";
 import { useProject } from "@/hooks/use-project";
 import { useBeadFilters } from "@/hooks/use-bead-filters";
+import { useGitHubStatus } from "@/hooks/use-github-status";
+/**
+ * @deprecated useBranchStatuses is deprecated. Use useWorktreeStatuses instead.
+ * TODO: Migrate to useWorktreeStatuses for the worktree-based workflow.
+ */
 import { useBranchStatuses } from "@/hooks/use-branch-statuses";
+import { useWorktreeStatuses } from "@/hooks/use-worktree-statuses";
 import { useKeyboardNavigation } from "@/hooks/use-keyboard-navigation";
 import type { Bead, BeadStatus } from "@/types";
 
@@ -73,6 +88,21 @@ export default function KanbanBoard() {
   // Issue type filter state (epics vs tasks)
   const [typeFilter, setTypeFilter] = useState<IssueTypeFilter>("all");
 
+  // GitHub status check
+  const { hasRemote, isAuthenticated, isLoading: githubStatusLoading } = useGitHubStatus(
+    project?.path ?? null
+  );
+
+  // Track whether the GitHub warning has been dismissed (session-only)
+  const [githubWarningDismissed, setGithubWarningDismissed] = useState(false);
+
+  // Show GitHub warning if project loaded, status checked, and either no remote or not authenticated
+  const showGitHubWarning = !projectLoading &&
+    !githubStatusLoading &&
+    project !== null &&
+    !githubWarningDismissed &&
+    (!hasRemote || !isAuthenticated);
+
   /**
    * Toggle a status in the filter
    */
@@ -93,9 +123,16 @@ export default function KanbanBoard() {
     setFilters({ owners: newOwners });
   }, [filters.owners, setFilters]);
 
-  // Fetch branch statuses for all beads
+  // @deprecated: Branch statuses are deprecated. TODO: migrate to useWorktreeStatuses
+  // Fetch branch statuses for all beads (legacy - for backward compatibility)
   const beadIds = useMemo(() => beads.map((b) => b.id), [beads]);
   const { statuses: branchStatuses } = useBranchStatuses(
+    project?.path ?? "",
+    beadIds
+  );
+
+  // Worktree statuses for PR workflow
+  const { statuses: worktreeStatuses } = useWorktreeStatuses(
     project?.path ?? "",
     beadIds
   );
@@ -326,6 +363,7 @@ export default function KanbanBoard() {
           bead={detailBead}
           ticketNumber={ticketNumbers.get(detailBead.id)}
           branchStatus={branchStatuses[detailBead.id]}
+          worktreeStatus={worktreeStatuses[detailBead.id]}
           open={isDetailOpen}
           onOpenChange={(open) => {
             setIsDetailOpen(open);
@@ -352,6 +390,25 @@ export default function KanbanBoard() {
           />
         </BeadDetail>
       )}
+
+      {/* GitHub Integration Warning Dialog */}
+      <AlertDialog open={showGitHubWarning} onOpenChange={(open) => !open && setGithubWarningDismissed(true)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>GitHub Integration Unavailable</AlertDialogTitle>
+            <AlertDialogDescription>
+              {!hasRemote
+                ? "This repository doesn't have a GitHub remote configured."
+                : "GitHub CLI is not authenticated."}
+              {" "}PR features (Create PR, Merge PR, status checks) will not be available.
+              You can still work on tasks locally.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose render={<Button>Continue Without GitHub</Button>} />
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
