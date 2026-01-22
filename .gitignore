@@ -44,7 +44,6 @@ next-env.d.ts
 
 # beads orchestration (user-specific)
 .beads/
-.claude/
 AGENTS.md
 CLAUDE.md
 
