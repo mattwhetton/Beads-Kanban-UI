@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { Bead } from "@/types";
 import type { BranchStatus } from "@/lib/git";
@@ -18,22 +17,25 @@ export interface BeadCardProps {
 /**
  * Get branch badge color based on ahead/behind status
  * Dark theme variant with semi-transparent backgrounds
- * Green: ahead only (has new commits, up to date with main)
- * Yellow: behind only (main has new commits)
- * Red: diverged (both ahead and behind)
- * Default green: up to date (ahead=0, behind=0)
+ * Red: diverged (needs rebase)
+ * Green: ahead only (ready to merge)
+ * Gray: behind only (merged/stale branch)
+ * Green: up to date (synced)
  */
 function getBranchBadgeColor(status: BranchStatus): string {
   const { ahead, behind } = status;
 
   if (ahead > 0 && behind > 0) {
-    // Diverged - red
+    // Needs rebase - red
     return "bg-red-500/10 text-red-400 border-red-600/30";
-  } else if (behind > 0) {
-    // Behind main - yellow
-    return "bg-yellow-500/10 text-yellow-400 border-yellow-600/30";
+  } else if (ahead > 0 && behind === 0) {
+    // Ready to merge - green
+    return "bg-green-500/10 text-green-400 border-green-600/30";
+  } else if (ahead === 0 && behind > 0) {
+    // Merged/stale - gray
+    return "bg-zinc-500/10 text-zinc-400 border-zinc-600/30";
   } else {
-    // Ahead only or up to date - green
+    // Synced (ahead=0, behind=0) - green
     return "bg-green-500/10 text-green-400 border-green-600/30";
   }
 }
@@ -46,39 +48,13 @@ function getBranchStatusLabel(status: BranchStatus): string {
   const { ahead, behind } = status;
 
   if (ahead > 0 && behind > 0) {
-    return "Diverged";
-  } else if (behind > 0) {
-    return "Behind main";
-  } else if (ahead > 0) {
+    return "Needs rebase";
+  } else if (ahead > 0 && behind === 0) {
     return "Ready to merge";
+  } else if (ahead === 0 && behind > 0) {
+    return "Merged";
   }
   return "Synced";
-}
-
-/**
- * Get branch name and detailed description for tooltip
- */
-function getBranchStatusDescription(
-  beadId: string,
-  status: BranchStatus
-): { branch: string; detail: string } {
-  const branch = `bd-${formatBeadId(beadId)}`;
-  const { ahead, behind } = status;
-
-  let detail: string;
-  if (ahead > 0 && behind > 0) {
-    detail = `${ahead} ahead, ${behind} behind main - needs merge`;
-  } else if (behind > 0) {
-    const commitWord = behind === 1 ? "commit" : "commits";
-    detail = `${behind} ${commitWord} behind main, needs rebase`;
-  } else if (ahead > 0) {
-    const commitWord = ahead === 1 ? "commit" : "commits";
-    detail = `${ahead} ${commitWord} ahead of main, ready to merge`;
-  } else {
-    detail = "Branch is up to date with main";
-  }
-
-  return { branch, detail };
 }
 
 /**
@@ -199,28 +175,16 @@ export function BeadCard({ bead, ticketNumber, branchStatus, isSelected = false,
         {/* Branch badge with ahead/behind status */}
         {branchExists && branchStatus && (
           <div className="pt-1">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      "text-[10px] px-2 py-0.5 cursor-help",
-                      getBranchBadgeColor(branchStatus)
-                    )}
-                  >
-                    <GitBranch className="h-3 w-3 mr-1" aria-hidden="true" />
-                    {getBranchStatusLabel(branchStatus)}
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs">
-                  <div className="space-y-1">
-                    <p className="font-mono text-xs">{getBranchStatusDescription(bead.id, branchStatus).branch}</p>
-                    <p className="text-xs text-muted-foreground">{getBranchStatusDescription(bead.id, branchStatus).detail}</p>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Badge
+              variant="outline"
+              className={cn(
+                "text-[10px] px-2 py-0.5",
+                getBranchBadgeColor(branchStatus)
+              )}
+            >
+              <GitBranch className="h-3 w-3 mr-1" aria-hidden="true" />
+              {getBranchStatusLabel(branchStatus)}
+            </Badge>
           </div>
         )}
       </div>
