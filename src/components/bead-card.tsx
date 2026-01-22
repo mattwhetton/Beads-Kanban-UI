@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { Bead } from "@/types";
 import type { BranchStatus } from "@/lib/git";
@@ -38,26 +39,46 @@ function getBranchBadgeColor(status: BranchStatus): string {
 }
 
 /**
- * Format branch status display
- * Returns: "bd-ID" if up to date, "bd-ID +ahead -behind" otherwise
+ * Get human-readable label for branch status
+ * Returns short labels (up to 3 words) based on ahead/behind counts
  */
-function formatBranchStatus(beadId: string, status: BranchStatus): string {
-  const formattedId = `bd-${formatBeadId(beadId)}`;
+function getBranchStatusLabel(status: BranchStatus): string {
   const { ahead, behind } = status;
 
-  if (ahead === 0 && behind === 0) {
-    return formattedId;
+  if (ahead > 0 && behind > 0) {
+    return "Diverged";
+  } else if (behind > 0) {
+    return "Behind main";
+  } else if (ahead > 0) {
+    return "Ready to merge";
+  }
+  return "Synced";
+}
+
+/**
+ * Get branch name and detailed description for tooltip
+ */
+function getBranchStatusDescription(
+  beadId: string,
+  status: BranchStatus
+): { branch: string; detail: string } {
+  const branch = `bd-${formatBeadId(beadId)}`;
+  const { ahead, behind } = status;
+
+  let detail: string;
+  if (ahead > 0 && behind > 0) {
+    detail = `${ahead} ahead, ${behind} behind main - needs merge`;
+  } else if (behind > 0) {
+    const commitWord = behind === 1 ? "commit" : "commits";
+    detail = `${behind} ${commitWord} behind main, needs rebase`;
+  } else if (ahead > 0) {
+    const commitWord = ahead === 1 ? "commit" : "commits";
+    detail = `${ahead} ${commitWord} ahead of main, ready to merge`;
+  } else {
+    detail = "Branch is up to date with main";
   }
 
-  const parts = [formattedId];
-  if (ahead > 0) {
-    parts.push(`+${ahead}`);
-  }
-  if (behind > 0) {
-    parts.push(`-${behind}`);
-  }
-
-  return parts.join(" ");
+  return { branch, detail };
 }
 
 /**
@@ -178,16 +199,28 @@ export function BeadCard({ bead, ticketNumber, branchStatus, isSelected = false,
         {/* Branch badge with ahead/behind status */}
         {branchExists && branchStatus && (
           <div className="pt-1">
-            <Badge
-              variant="outline"
-              className={cn(
-                "text-[10px] px-2 py-0.5 font-mono",
-                getBranchBadgeColor(branchStatus)
-              )}
-            >
-              <GitBranch className="h-3 w-3 mr-1" aria-hidden="true" />
-              {formatBranchStatus(bead.id, branchStatus)}
-            </Badge>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "text-[10px] px-2 py-0.5 cursor-help",
+                      getBranchBadgeColor(branchStatus)
+                    )}
+                  >
+                    <GitBranch className="h-3 w-3 mr-1" aria-hidden="true" />
+                    {getBranchStatusLabel(branchStatus)}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs">
+                  <div className="space-y-1">
+                    <p className="font-mono text-xs">{getBranchStatusDescription(bead.id, branchStatus).branch}</p>
+                    <p className="text-xs text-muted-foreground">{getBranchStatusDescription(bead.id, branchStatus).detail}</p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         )}
       </div>
