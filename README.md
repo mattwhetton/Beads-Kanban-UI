@@ -36,7 +36,7 @@ A beautiful visual Kanban board for the [Beads CLI](https://github.com/steveyegg
 
 **Install and run:**
 ```bash
-npm install -g beads-ui
+npm install -g beads-kanban-ui
 bead-kanban
 ```
 
