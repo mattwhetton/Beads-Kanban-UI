@@ -325,6 +325,7 @@ export default function KanbanBoard() {
         <BeadDetail
           bead={detailBead}
           ticketNumber={ticketNumbers.get(detailBead.id)}
+          branchStatus={branchStatuses[detailBead.id]}
           open={isDetailOpen}
           onOpenChange={(open) => {
             setIsDetailOpen(open);

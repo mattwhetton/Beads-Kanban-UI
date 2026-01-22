@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Bead, BeadStatus } from "@/types";
+import type { BranchStatus } from "@/lib/git";
 import { ArrowLeft, GitBranch, Calendar } from "lucide-react";
 import { DesignDocViewer } from "@/components/design-doc-viewer";
 import { SubtaskList } from "@/components/subtask-list";
@@ -19,6 +20,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 export interface BeadDetailProps {
   bead: Bead;
   ticketNumber?: number;
+  branchStatus?: BranchStatus;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   children?: React.ReactNode;
@@ -111,6 +113,49 @@ function formatDate(dateString: string): string {
 }
 
 /**
+ * Get branch badge color based on ahead/behind status
+ * Dark theme variant with semi-transparent backgrounds
+ * Red: diverged (needs rebase)
+ * Green: ahead only (ready to merge)
+ * Gray: behind only (merged/stale branch)
+ * Green: up to date (synced)
+ */
+function getBranchBadgeColor(status: BranchStatus): string {
+  const { ahead, behind } = status;
+
+  if (ahead > 0 && behind > 0) {
+    // Needs rebase - red
+    return "bg-red-500/10 text-red-400 border-red-600/30";
+  } else if (ahead > 0 && behind === 0) {
+    // Ready to merge - green
+    return "bg-green-500/10 text-green-400 border-green-600/30";
+  } else if (ahead === 0 && behind > 0) {
+    // Merged/stale - gray
+    return "bg-zinc-500/10 text-zinc-400 border-zinc-600/30";
+  } else {
+    // Synced (ahead=0, behind=0) - green
+    return "bg-green-500/10 text-green-400 border-green-600/30";
+  }
+}
+
+/**
+ * Get human-readable label for branch status
+ * Returns short labels (up to 3 words) based on ahead/behind counts
+ */
+function getBranchStatusLabel(status: BranchStatus): string {
+  const { ahead, behind } = status;
+
+  if (ahead > 0 && behind > 0) {
+    return "Needs rebase";
+  } else if (ahead > 0 && behind === 0) {
+    return "Ready to merge";
+  } else if (ahead === 0 && behind > 0) {
+    return "Merged";
+  }
+  return "Synced";
+}
+
+/**
  * Bead detail sheet component - slides in from the right
  * Displays full bead information with metadata grid and description
  *
@@ -121,6 +166,7 @@ function formatDate(dateString: string): string {
 export function BeadDetail({
   bead,
   ticketNumber,
+  branchStatus,
   open,
   onOpenChange,
   children,
@@ -239,9 +285,19 @@ export function BeadDetail({
               {/* Branch */}
               <div className="space-y-1">
                 <span className="text-zinc-500 text-xs">Branch</span>
-                <div className="flex items-center gap-1.5">
-                  <GitBranch className="h-3.5 w-3.5 text-zinc-500" aria-hidden="true" />
-                  <span className="font-mono text-xs text-zinc-200">{branchName}</span>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <GitBranch className="h-3.5 w-3.5 text-zinc-500" aria-hidden="true" />
+                    <span className="font-mono text-xs text-zinc-200">{branchName}</span>
+                  </div>
+                  {branchStatus?.exists && (
+                    <Badge
+                      variant="outline"
+                      className={cn("text-[10px] px-1.5 py-0 font-medium", getBranchBadgeColor(branchStatus))}
+                    >
+                      {getBranchStatusLabel(branchStatus)}
+                    </Badge>
+                  )}
                 </div>
               </div>
 
