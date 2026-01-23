@@ -8,8 +8,12 @@ AGENT_TRANSCRIPT=$(echo "$INPUT" | jq -r '.agent_transcript_path // empty')
 
 [[ -z "$AGENT_TRANSCRIPT" || ! -f "$AGENT_TRANSCRIPT" ]] && echo '{"decision":"approve"}' && exit 0
 
-# Extract last response
-LAST_RESPONSE=$(tail -50 "$AGENT_TRANSCRIPT" | grep -o '"text":"[^"]*"' | tail -1 | sed 's/"text":"//;s/"$//')
+# Extract last assistant text response using proper JSON parsing
+# The old regex approach failed on escaped quotes and special characters
+LAST_RESPONSE=$(tail -200 "$AGENT_TRANSCRIPT" | jq -rs '
+  [.[] | select(.message?.role == "assistant" and .message?.content != null)
+   | .message.content[] | select(.text != null) | .text] | last // ""
+' 2>/dev/null || echo "")
 
 # Check for supervisor agents (they must report BEAD_ID and inreview status)
 AGENT_TYPE=$(echo "$INPUT" | jq -r '.subagent_type // empty')
