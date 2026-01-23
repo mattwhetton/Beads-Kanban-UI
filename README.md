@@ -20,12 +20,16 @@ A beautiful visual Kanban board for the [Beads CLI](https://github.com/steveyegg
 ## What You Get
 
 - **Multi-project dashboard** — Manage all your beads projects in one place with status donut charts
-- **Kanban board** — Open → In Progress → In Review → Closed
-- **Epic support** — Group related tasks, track progress with bars, view all subtasks
+- **Kanban board** — Open → In Progress → In Review → Closed with drag-to-update workflow
+- **Epic support** — Group related tasks with visual progress bars, view all subtasks, close epic when complete
+- **PR workflow integration** — Create PRs from the UI, view CI check status, merge directly from Kanban board, get alerts for merge conflicts
+- **Type-based visual distinction** — Bugs, features, and epics display with different accent colors for quick recognition
 - **Real-time sync** — File watcher auto-updates when beads files change on disk
+- **Auto-refresh** — PR status updates every 30 seconds automatically
 - **Git integration** — See branch status for each task at a glance
 - **Search & filter** — Quick filters for status, priority, owner, and tags
 - **Project tagging** — Organize with colored tags and filter by them
+- **Performance optimized** — Efficient polling skips closed beads to reduce unnecessary checks
 
 ## Quick Start
 
@@ -118,9 +122,29 @@ The production server embeds the frontend and serves everything from a single bi
 
 ### Features in Detail
 
+**Epic Management**
+- Group related tasks under a single epic
+- Visual progress bar shows completion percentage (e.g., "3/5 children done")
+- Click "Close Epic" button when 100% of children are complete
+- View all subtasks directly within the epic card
+- Design documents automatically linked to epics
+
+**PR Workflow Integration**
+- Create pull requests directly from the Kanban board
+- See real-time CI check status for each PR
+- Merge code directly from the UI without leaving Beads
+- Get immediate alerts if merge conflicts are detected
+- Status updates automatically every 30 seconds
+
+**Type-Based Visual Coding**
+- Bug, feature, and epic tasks display with distinct accent colors
+- Quickly identify task types at a glance without reading labels
+- Consistent color scheme across dashboard and board views
+
 **Search & Filter**
 - Quick filters for status, priority, and assigned owner
 - Project tags for organization
+- Filter by epic vs standalone tasks
 
 **Real-time Sync**
 - The app watches `.beads/issues.jsonl` and updates automatically
@@ -129,6 +153,12 @@ The production server embeds the frontend and serves everything from a single bi
 **Git Integration**
 - Each task shows its git branch status
 - Useful for tracking which branch a task lives on
+- Pull request metadata synced from GitHub/GitLab
+
+**Performance Optimized**
+- Polling intelligently skips closed beads to reduce load
+- Worktree status checking only runs for active tasks
+- PR status updates are batched to minimize API calls
 
 ---
 
