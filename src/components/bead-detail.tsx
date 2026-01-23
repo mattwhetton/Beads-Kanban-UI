@@ -302,6 +302,10 @@ export function BeadDetail({
   const [actionError, setActionError] = useState<string | null>(null);
   const [isRefreshingPR, setIsRefreshingPR] = useState(false);
 
+  // Merge button delay state - wait for CI checks to load before showing merge button
+  const [mergeButtonReady, setMergeButtonReady] = useState(false);
+  const [isCheckingCI, setIsCheckingCI] = useState(false);
+
   // Fetch PR status when detail panel is open and we have a worktree
   const hasWorktree = worktreeStatus?.exists ?? false;
   const shouldFetchPRStatus = open && hasWorktree && !!projectPath;
@@ -387,12 +391,42 @@ export function BeadDetail({
     }
   }, [isDesignDocFullScreen]);
 
-  // Clear action error when panel closes
+  // Clear action error and merge button state when panel closes
   useEffect(() => {
     if (!open) {
       setActionError(null);
+      setMergeButtonReady(false);
+      setIsCheckingCI(false);
     }
   }, [open]);
+
+  // Delay showing merge button by 2 seconds when PR loads with open state
+  // This allows CI checks to start before the user can merge
+  const prState = prStatus?.pr?.state;
+  const prNumber = prStatus?.pr?.number;
+  useEffect(() => {
+    // Only trigger when we have a PR that's open and loading has finished
+    if (isPRStatusLoading || !prState || prState !== "open") {
+      setMergeButtonReady(false);
+      setIsCheckingCI(false);
+      return;
+    }
+
+    // Start the 2 second delay
+    setIsCheckingCI(true);
+    setMergeButtonReady(false);
+
+    const timer = setTimeout(async () => {
+      // Re-fetch PR status to get updated checks
+      await refreshPRStatus();
+      setIsCheckingCI(false);
+      setMergeButtonReady(true);
+    }, 2000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [isPRStatusLoading, prState, prNumber, refreshPRStatus]);
 
   /**
    * Handle creating a PR
@@ -772,8 +806,21 @@ export function BeadDetail({
                       </a>
                     </Button>
 
-                    {/* Merge PR button - only if checks passed and PR is open */}
+                    {/* Checking CI status indicator - shown during 2s delay */}
+                    {prStatus.pr.state === "open" && isCheckingCI && (
+                      <span
+                        role="status"
+                        aria-live="polite"
+                        className="flex items-center gap-1.5 text-xs text-zinc-500"
+                      >
+                        <Loader2 className="size-3 animate-spin" aria-hidden="true" />
+                        Checking CI status…
+                      </span>
+                    )}
+
+                    {/* Merge PR button - only if checks passed, PR is open, and delay has passed */}
                     {prStatus.pr.state === "open" &&
+                      mergeButtonReady &&
                       prStatus.pr.checks.status === "success" &&
                       prStatus.pr.mergeable && (
                         <Button
