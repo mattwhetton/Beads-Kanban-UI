@@ -18,21 +18,25 @@
           },
           {
             "type": "command",
+            "command": ".claude/hooks/enforce-sequential-dispatch.sh"
+          },
+          {
+            "type": "command",
             "command": ".claude/hooks/remind-inprogress.sh"
           },
           {
             "type": "command",
             "command": ".claude/hooks/inject-discipline-reminder.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/inject-memory-recall.sh"
           }
         ]
       },
       {
         "matcher": "Bash",
         "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/block-branch-for-epic-child.sh"
-          },
           {
             "type": "command",
             "command": ".claude/hooks/validate-epic-close.sh"
@@ -65,6 +69,16 @@
           {
             "type": "command",
             "command": ".claude/hooks/enforce-concise-response.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/memory-capture.sh",
+            "timeout": 10
           }
         ]
       }

@@ -118,6 +118,17 @@ EOF
     fi
   fi
 
+  # Check 8: LEARNED comment required (non-worker supervisors only)
+  if [[ "$IS_WORKER" == "false" ]]; then
+    HAS_LEARNED=$(grep -c 'LEARNED:' "$AGENT_TRANSCRIPT" 2>/dev/null) || HAS_LEARNED=0
+    if [[ "$HAS_LEARNED" -lt 1 ]]; then
+      cat << 'EOF'
+{"decision":"block","reason":"Supervisor must log a LEARNED: comment before completing.\n\nRun: bd comment {BEAD_ID} \"LEARNED: [key technical insight from this task]\"\n\nExamples:\n- \"LEARNED: Axum extractors must be ordered by specificity or requests 400.\"\n- \"LEARNED: Next.js Server Components cannot use useEffect - must mark 'use client'.\"\n- \"LEARNED: SQLite WAL mode required for concurrent read/write access.\"\n\nThis builds the project knowledge base for future sessions."}
+EOF
+      exit 0
+    fi
+  fi
+
   # Enforce concise responses for ALL supervisors (including worker)
   # Note: JSON escapes \n as literal chars, use printf to interpret
   DECODED_RESPONSE=$(printf '%b' "$LAST_RESPONSE")

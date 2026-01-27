@@ -1,69 +1,119 @@
 <beads-workflow>
-<requirement>You MUST follow this branch-per-task workflow for ALL implementation work.</requirement>
+<requirement>You MUST follow this worktree-per-task workflow for ALL implementation work.</requirement>
 
 <on-task-start>
 1. **Parse task parameters from orchestrator:**
    - BEAD_ID: Your task ID (e.g., BD-001 for standalone, BD-001.2 for epic child)
-   - EPIC_BRANCH: (epic children only) The shared branch (e.g., bd-BD-001)
    - EPIC_ID: (epic children only) The parent epic ID (e.g., BD-001)
 
-2. **Mark in progress:**
+2. **Create worktree (via API with git fallback):**
+   ```bash
+   REPO_ROOT=$(git rev-parse --show-toplevel)
+   WORKTREE_PATH="$REPO_ROOT/.worktrees/bd-{BEAD_ID}"
+
+   # Try API first (requires beads-kanban-ui running)
+   API_RESPONSE=$(curl -s -X POST http://localhost:3008/api/git/worktree \
+     -H "Content-Type: application/json" \
+     -d '{"repo_path": "'$REPO_ROOT'", "bead_id": "{BEAD_ID}"}' 2>/dev/null)
+
+   # Fallback to git if API unavailable
+   if [[ -z "$API_RESPONSE" ]] || echo "$API_RESPONSE" | grep -q "error"; then
+     mkdir -p "$REPO_ROOT/.worktrees"
+     if [[ ! -d "$WORKTREE_PATH" ]]; then
+       git worktree add "$WORKTREE_PATH" -b bd-{BEAD_ID}
+     fi
+   fi
+
+   cd "$WORKTREE_PATH"
+   ```
+
+3. **Mark in progress:**
+   ```bash
    bd update {BEAD_ID} --status in_progress
+   ```
 
-3. **Checkout branch:**
-   - Epic child: `git checkout {EPIC_BRANCH}` (shared branch)
-   - Standalone: `git checkout -b bd-{BEAD_ID}` (new branch)
+4. **Read bead comments for investigation context:**
+   ```bash
+   bd show {BEAD_ID}
+   bd comments {BEAD_ID}
+   ```
 
-4. **Pull latest (epic children only):**
-   git pull origin {EPIC_BRANCH} 2>/dev/null || true
-
-5. **INVOKE DISCIPLINE SKILL** (mandatory):
-   Skill(skill: "subagents-discipline")
-
-6. **READ DESIGN DOC** (epic children with design path):
+5. **If epic child: Read design doc:**
+   ```bash
    design_path=$(bd show {EPIC_ID} --json | jq -r '.[0].design // empty')
-   If design_path exists and file exists: Read and incorporate into implementation.
-   Your implementation MUST match the design doc specifications.
+   # If design_path exists: Read and follow specifications exactly
+   ```
+
+6. **Invoke discipline skill:**
+   ```
+   Skill(skill: "subagents-discipline")
+   ```
 </on-task-start>
 
+<execute-with-confidence>
+The orchestrator has investigated and logged findings to the bead.
+
+**Default behavior:** Execute the fix confidently based on bead comments.
+
+**Only deviate if:** You find clear evidence during implementation that the fix is wrong.
+
+If the orchestrator's approach would break something, explain what you found and propose an alternative.
+</execute-with-confidence>
+
 <during-implementation>
-1. Follow subagents-discipline phases (0-4)
-2. Document verification in .verification_logs/{BEAD_ID}.md
-3. Commit frequently with descriptive messages
-4. Log progress: `bd comment {BEAD_ID} "Completed X, working on Y"`
+1. Work ONLY in your worktree: `.worktrees/bd-{BEAD_ID}/`
+2. Commit frequently with descriptive messages
+3. Log progress: `bd comment {BEAD_ID} "Completed X, working on Y"`
 </during-implementation>
 
 <on-completion>
-**For EPIC CHILDREN (BEAD_ID contains dot):**
-1. Run fresh verification, capture evidence
-2. Final commit to epic branch
-3. Add verification comment: `bd comment {BEAD_ID} "VERIFICATION: [evidence]"`
-4. Mark done: `bd update {BEAD_ID} --status done`
-5. Return completion summary to orchestrator
-   (Code review happens at EPIC level after ALL children complete)
+WARNING: You will be BLOCKED if you skip any step. Execute ALL in order:
 
-**For STANDALONE TASKS (no dot in BEAD_ID):**
-1. Run fresh verification, capture evidence
-2. Final commit
-3. Add verification comment: `bd comment {BEAD_ID} "VERIFICATION: [evidence]"`
-4. **REQUEST CODE REVIEW** (mandatory):
+1. **Commit all changes:**
+   ```bash
+   git add -A && git commit -m "..."
    ```
-   Tool: mcp__provider_delegator__invoke_agent
-   Parameters:
-     agent: "code-reviewer"
-     task_prompt: "Review BEAD_ID: {BEAD_ID}\nBranch: bd-{BEAD_ID}"
+
+2. **Push to remote:**
+   ```bash
+   git push origin bd-{BEAD_ID}
    ```
-5. If APPROVED → proceed. If NOT APPROVED → fix and repeat.
-6. Mark ready: `bd update {BEAD_ID} --status inreview`
-7. Return completion summary to orchestrator
+
+3. **Log what you learned (REQUIRED - you will be blocked without this):**
+   ```bash
+   bd comment {BEAD_ID} "LEARNED: [key technical insight from this task]"
+   ```
+   Record a convention, gotcha, or pattern you discovered. Examples:
+   - `"LEARNED: Axum extractors must be ordered by specificity or requests 400."`
+   - `"LEARNED: Next.js Server Components cannot use useEffect - must mark 'use client'."`
+   - `"LEARNED: SQLite WAL mode required for concurrent read/write access."`
+
+4. **Leave completion comment:**
+   ```bash
+   bd comment {BEAD_ID} "Completed: [summary]"
+   ```
+
+5. **Mark status:**
+   ```bash
+   bd update {BEAD_ID} --status inreview
+   ```
+
+6. **Return completion report:**
+   ```
+   BEAD {BEAD_ID} COMPLETE
+   Worktree: .worktrees/bd-{BEAD_ID}
+   Files: [names only]
+   Tests: pass
+   Summary: [1 sentence]
+   ```
+
+The SubagentStop hook verifies: worktree exists, no uncommitted changes, pushed to remote, bead status updated, LEARNED comment exists.
 </on-completion>
 
 <banned>
 - Working directly on main branch
 - Implementing without BEAD_ID
-- Merging your own branch
-- Epic children creating their own branch (must use EPIC_BRANCH)
-- Standalone tasks skipping code review
-- Ignoring design doc specifications
+- Merging your own branch (user merges via PR)
+- Editing files outside your worktree
 </banned>
 </beads-workflow>

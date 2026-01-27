@@ -55,3 +55,9 @@ test-*.txt
 
 # Git worktrees
 .worktrees/
+Vent
+
+# Agentifind generated files
+.claude/codebase.json
+.claude/CODEBASE.md
+.claude/.agentifind-checksum

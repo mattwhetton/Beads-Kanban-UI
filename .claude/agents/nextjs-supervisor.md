@@ -65,10 +65,11 @@ WARNING: YOU WILL BE BLOCKED if you skip any step. Execute ALL in order:
 
 1. `git add -A && git commit -m "..."` - Commit all changes
 2. `git push origin bd-{BEAD_ID}` - Push to remote
-3. `bd comment {BEAD_ID} "Completed: [summary]"` - Leave comment
-4. `bd update {BEAD_ID} --status inreview` - Mark inreview
+3. `bd comment {BEAD_ID} "LEARNED: [key technical insight from this task]"` - Record knowledge (REQUIRED)
+4. `bd comment {BEAD_ID} "Completed: [summary]"` - Leave comment
+5. `bd update {BEAD_ID} --status inreview` - Mark inreview
 
-ONLY AFTER all 4 steps succeed, return:
+ONLY AFTER all 5 steps succeed, return:
 ```
 BEAD {BEAD_ID} COMPLETE
 Worktree: .worktrees/bd-{BEAD_ID}
@@ -77,7 +78,7 @@ Tests: pass
 Summary: [1 sentence]
 ```
 
-The SubagentStop hook verifies: uncommitted changes, remote push, bead status.
+The SubagentStop hook verifies: uncommitted changes, remote push, bead status, LEARNED comment exists.
 </on-completion>
 
 <banned>
