@@ -168,7 +168,10 @@ export default function KanbanBoard() {
       closed: [],
     };
     topLevelBeads.forEach((bead) => {
-      grouped[bead.status].push(bead);
+      // Skip beads with unknown statuses (e.g., tombstone for soft-deleted items)
+      if (grouped[bead.status]) {
+        grouped[bead.status].push(bead);
+      }
     });
     return grouped;
   }, [topLevelBeads]);
