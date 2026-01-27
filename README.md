@@ -17,19 +17,19 @@ A beautiful visual Kanban board for the [Beads CLI](https://github.com/steveyegg
 **Bead Details** — Dive into epics with full context and subtasks:
 ![Bead detail panel showing epic with progress bar and subtasks](Screenshots/bead-detail.png)
 
-## What You Get
+## Key Features
 
-- **Multi-project dashboard** — Manage all your beads projects in one place with status donut charts
-- **Kanban board** — Open → In Progress → In Review → Closed with drag-to-update workflow
-- **Epic support** — Group related tasks with visual progress bars, view all subtasks, close epic when complete
-- **PR workflow integration** — Create PRs from the UI, view CI check status, merge directly from Kanban board, get alerts for merge conflicts
-- **Type-based visual distinction** — Bugs, features, and epics display with different accent colors for quick recognition
-- **Real-time sync** — File watcher auto-updates when beads files change on disk
-- **Auto-refresh** — PR status updates every 30 seconds automatically
-- **Git integration** — See branch status for each task at a glance
-- **Search & filter** — Quick filters for status, priority, owner, and tags
-- **Project tagging** — Organize with colored tags and filter by them
-- **Performance optimized** — Efficient polling skips closed beads to reduce unnecessary checks
+- 📋 **Multi-project dashboard** — Manage all your beads projects in one place with status donut charts
+- 🗂️ **Kanban board** — Open → In Progress → In Review → Closed with drag-to-update workflow
+- 🏗️ **Epic support** — Group related tasks with visual progress bars, view all subtasks, close epic when complete
+- 🔗 **Related tasks** — Bidirectional "see also" links between beads via `bd dep relate`, visible on cards, subtask rows, and detail panels
+- 🧠 **Memory panel** — Browse, search, edit, and archive your project's knowledge base (`.beads/memory/knowledge.jsonl`) from a slide-out panel
+- 🚀 **PR workflow** — Create PRs, view CI status, merge, and auto-close beads when PRs are merged — all from the Kanban board
+- 🎨 **Type-based visuals** — Bugs, features, and epics display with distinct accent colors for quick recognition
+- 🔄 **Real-time sync** — File watcher auto-updates when beads files change on disk; PR status refreshes every 30s
+- 🔍 **Search & filter** — Unified floating toolbar with search, type filters (epics/tasks), today mode, status, and owner filters
+- 🏷️ **Project tagging** — Organize with colored tags and filter by them
+- ⚡ **Performance optimized** — Efficient polling skips closed beads to reduce unnecessary checks
 
 ## Quick Start
 
@@ -141,10 +141,25 @@ The production server embeds the frontend and serves everything from a single bi
 - Quickly identify task types at a glance without reading labels
 - Consistent color scheme across dashboard and board views
 
+**Memory Panel**
+- Access your project's knowledge base from the unified toolbar (🧠 button)
+- Browse learned insights and investigation findings captured during development
+- Search and filter entries by type (Learned / Investigation)
+- Edit content and tags inline, archive or delete entries
+- Click any entry to navigate directly to its linked bead
+
+**Related Tasks**
+- Create bidirectional "see also" links between beads with `bd dep relate`
+- Related task count shown on kanban cards alongside comment count
+- Full "Related Tasks" section in the bead detail panel with clickable navigation
+- Epic subtask rows show per-child related count badges
+
 **Search & Filter**
+- Unified floating toolbar consolidates all controls into a single pill bar
 - Quick filters for status, priority, and assigned owner
+- Type filter to show only epics or standalone tasks
+- Today mode to surface recently updated items
 - Project tags for organization
-- Filter by epic vs standalone tasks
 
 **Real-time Sync**
 - The app watches `.beads/issues.jsonl` and updates automatically
@@ -159,105 +174,6 @@ The production server embeds the frontend and serves everything from a single bi
 - Polling intelligently skips closed beads to reduce load
 - Worktree status checking only runs for active tasks
 - PR status updates are batched to minimize API calls
-
----
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Beads Kanban UI                      │
-├─────────────────────────────────────────────────────────┤
-│  Frontend (Next.js 14)          │  Backend (Rust/Axum) │
-│  ─────────────────────          │  ────────────────────│
-│  • React 18                     │  • SQLite (projects) │
-│  • shadcn/ui components         │  • beads CLI bridge  │
-│  • Tailwind CSS                 │  • File watcher      │
-│  • TypeScript                   │  • Git integration   │
-└─────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-              ┌─────────────────────────┐
-              │   .beads/ directory     │
-              │   (issues.jsonl, etc.)  │
-              └─────────────────────────┘
-```
-
-### Tech Stack
-- **Frontend**: Next.js 14, React 18, Tailwind CSS, shadcn/ui
-- **Backend**: Rust with Axum framework
-- **Database**: SQLite for project metadata
-- **File Sync**: Real-time watcher for `.beads/` changes
-
-### Project Structure
-```
-beads-kanban-ui/
-├── src/
-│   ├── app/                 # Next.js pages and routes
-│   │   ├── page.tsx         # Projects dashboard
-│   │   ├── project/         # Kanban board view
-│   │   └── settings/        # Settings page
-│   ├── components/          # React components
-│   │   ├── ui/              # shadcn/ui components
-│   │   ├── kanban-column.tsx
-│   │   ├── bead-card.tsx
-│   │   └── bead-detail.tsx
-│   ├── hooks/               # Custom React hooks
-│   ├── lib/                 # Utilities and API client
-│   └── types/               # TypeScript type definitions
-├── server/
-│   └── src/
-│       ├── main.rs          # Axum server entry point
-│       ├── db.rs            # SQLite database layer
-│       └── routes/          # API route handlers
-└── package.json
-```
-
----
-
-## API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/health` | GET | Server health check |
-| `/api/projects` | GET/POST | List or create projects |
-| `/api/projects/:id` | GET/PUT/DELETE | Manage individual projects |
-| `/api/beads?path=` | GET | Read beads from a project path |
-| `/api/beads/comment` | POST | Add comment to a bead |
-| `/api/bd/command` | POST | Execute beads CLI commands |
-| `/api/git/branch-status` | GET | Get git branch status for a bead |
-| `/api/fs/list` | GET | List directory contents |
-| `/api/fs/exists` | GET | Check if a path exists |
-| `/api/watch/beads` | GET | Server-sent events for file changes |
-
-### Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `3008` | Backend server port |
-| `NEXT_PUBLIC_BACKEND_URL` | `http://localhost:3008` | Backend URL for frontend API calls |
-
----
-
-## Development Commands
-
-```bash
-# Run both frontend and backend
-npm run dev:full
-
-# Run frontend only
-npm run dev
-
-# Run backend only
-npm run server:dev
-
-# Build for production
-npm run build
-npm run server:build
-
-# Linting
-npm run lint
-```
 
 ---
 
