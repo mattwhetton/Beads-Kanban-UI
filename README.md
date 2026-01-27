@@ -2,8 +2,6 @@
   <img src="logo/logo.png" alt="Beads Kanban UI" width="200" />
 </p>
 
-<h1 align="center">Beads Kanban UI</h1>
-
 <p align="center">A visual Kanban UI for <a href="https://github.com/steveyegge/beads">Beads CLI</a> — built with Next.js + Rust. Real-time sync, epic tracking, git ops and multi-project dashboard.</p>
 
 > **Works great with [Beads Orchestration](https://github.com/AvivK5498/Claude-Code-Beads-Orchestration)** — A multi-agent orchestration framework for Claude Code that uses beads for git-native task tracking.
