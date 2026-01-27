@@ -21,10 +21,10 @@
 
 - 📋 **Multi-project dashboard** — Manage all your beads projects in one place with status donut charts
 - 🗂️ **Kanban board** — Open → In Progress → In Review → Closed with drag-to-update workflow
+- 🛠️ **GitOps** — Create, view, and merge pull requests directly from the board. CI status, merge conflicts, and auto-close on merge — no terminal needed
 - 🏗️ **Epic support** — Group related tasks with visual progress bars, view all subtasks, close epic when complete
 - 🔗 **Related tasks** — Bidirectional "see also" links between beads via `bd dep relate`, visible on cards, subtask rows, and detail panels
 - 🧠 **Memory panel** — Browse, search, edit, and archive your project's knowledge base (`.beads/memory/knowledge.jsonl`) from a slide-out panel
-- 🚀 **PR workflow** — Create PRs, view CI status, merge, and auto-close beads when PRs are merged — all from the Kanban board
 - 🎨 **Type-based visuals** — Bugs, features, and epics display with distinct accent colors for quick recognition
 - 🔄 **Real-time sync** — File watcher auto-updates when beads files change on disk; PR status refreshes every 30s
 - 🔍 **Search & filter** — Unified floating toolbar with search, type filters (epics/tasks), today mode, status, and owner filters
@@ -93,12 +93,14 @@ The app watches for file changes and syncs in real-time.
 - View all subtasks directly within the epic card
 - Design documents automatically linked to epics
 
-**PR Workflow Integration**
-- Create pull requests directly from the Kanban board
-- See real-time CI check status for each PR
-- Merge code directly from the UI without leaving Beads
-- Get immediate alerts if merge conflicts are detected
-- Status updates automatically every 30 seconds
+**GitOps**
+- Create pull requests directly from the bead detail panel
+- View real-time CI check status (pass/fail/pending) on each card and in detail view
+- Merge PRs from the UI — no need to switch to GitHub
+- Beads auto-close when their PR is merged (worktree cleanup included)
+- Merge conflict alerts surface immediately
+- Worktree status (ahead/behind) shown on each task card
+- PR status auto-refreshes every 30 seconds
 
 **Type-Based Visual Coding**
 - Bug, feature, and epic tasks display with distinct accent colors
@@ -128,11 +130,6 @@ The app watches for file changes and syncs in real-time.
 **Real-time Sync**
 - The app watches `.beads/issues.jsonl` and updates automatically
 - No refresh needed—changes appear instantly
-
-**Git Integration**
-- Each task shows its git branch status
-- Useful for tracking which branch a task lives on
-- Pull request metadata synced from GitHub/GitLab
 
 **Performance Optimized**
 - Polling intelligently skips closed beads to reduce load
