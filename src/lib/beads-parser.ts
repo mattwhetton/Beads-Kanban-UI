@@ -62,7 +62,10 @@ export function groupBeadsByStatus(beads: Bead[]): Record<BeadStatus, Bead[]> {
   };
 
   for (const bead of beads) {
-    grouped[bead.status].push(bead);
+    // Skip beads with unknown statuses (e.g., tombstone for soft-deleted items)
+    if (grouped[bead.status]) {
+      grouped[bead.status].push(bead);
+    }
   }
 
   // Sort each group by updated_at descending (most recent first)
