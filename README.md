@@ -1,8 +1,10 @@
-# Beads Kanban UI
+<p align="center">
+  <img src="logo/logo.png" alt="Beads Kanban UI" width="200" />
+</p>
 
-**See all your tasks at a glance. Organize, and track progress across projects - no CLI required.**
+<h1 align="center">Beads Kanban UI</h1>
 
-A beautiful visual Kanban board for the [Beads CLI](https://github.com/steveyegge/beads) task tracker. Beads stores tasks as git-native files (`.beads/issues.jsonl`), and this UI gives you the dashboard and board you've been missing.
+<p align="center">A visual Kanban UI for <a href="https://github.com/steveyegge/beads">Beads CLI</a> — built with Next.js + Rust. Real-time sync, epic tracking, git ops and multi-project dashboard.</p>
 
 > **Works great with [Beads Orchestration](https://github.com/AvivK5498/Claude-Code-Beads-Orchestration)** — A multi-agent orchestration framework for Claude Code that uses beads for git-native task tracking.
 
@@ -72,42 +74,6 @@ The app watches for file changes and syncs in real-time.
 
 ---
 
-## Detailed Setup
-
-### Development Mode
-
-Run both frontend and backend together:
-```bash
-npm run dev:full
-```
-
-Or run separately:
-```bash
-# Terminal 1: Frontend (http://localhost:3007)
-npm run dev
-
-# Terminal 2: Backend (http://localhost:3008)
-npm run server:dev
-```
-
-The Rust backend builds automatically on first run. If you need to rebuild it:
-```bash
-cd server && cargo build --release && cd ..
-```
-
-### Production Build
-
-For a single binary deployment:
-```bash
-npm run build
-npm run server:build
-./server/target/release/beads-server
-```
-
-The production server embeds the frontend and serves everything from a single binary on port 3008.
-
----
-
 ## How It Works
 
 ### Dashboard
@@ -174,6 +140,42 @@ The production server embeds the frontend and serves everything from a single bi
 - Polling intelligently skips closed beads to reduce load
 - Worktree status checking only runs for active tasks
 - PR status updates are batched to minimize API calls
+
+---
+
+## Detailed Setup
+
+### Development Mode
+
+Run both frontend and backend together:
+```bash
+npm run dev:full
+```
+
+Or run separately:
+```bash
+# Terminal 1: Frontend (http://localhost:3007)
+npm run dev
+
+# Terminal 2: Backend (http://localhost:3008)
+npm run server:dev
+```
+
+The Rust backend builds automatically on first run. If you need to rebuild it:
+```bash
+cd server && cargo build --release && cd ..
+```
+
+### Production Build
+
+For a single binary deployment:
+```bash
+npm run build
+npm run server:build
+./server/target/release/beads-server
+```
+
+The production server embeds the frontend and serves everything from a single binary on port 3008.
 
 ---
 
