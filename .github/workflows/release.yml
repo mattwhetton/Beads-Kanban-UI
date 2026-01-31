@@ -91,8 +91,8 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          name: ${{ github.ref_name || inputs.version }}
-          tag_name: ${{ github.ref_name || inputs.version }}
+          name: ${{ inputs.version || github.ref_name }}
+          tag_name: ${{ inputs.version || github.ref_name }}
           files: release/*
           generate_release_notes: true
 
@@ -111,7 +111,7 @@ jobs:
 
       - name: Update package version
         run: |
-          VERSION="${{ github.ref_name || inputs.version }}"
+          VERSION="${{ inputs.version || github.ref_name }}"
           VERSION="${VERSION#v}"  # Remove 'v' prefix
           cd npm
           npm version $VERSION --no-git-tag-version --allow-same-version
